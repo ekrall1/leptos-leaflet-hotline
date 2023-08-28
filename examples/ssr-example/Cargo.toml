@@ -32,6 +32,7 @@ leptos-leaflet = { git="https://github.com/headless-studio/leptos-leaflet", bran
 getrandom = "0.2"
 js-sys = "0.3.64"
 leptos-leaflet-hotline = { path="../../leptos-leaflet-hotline" }
+cargo-leptos = "0.1.11"
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 

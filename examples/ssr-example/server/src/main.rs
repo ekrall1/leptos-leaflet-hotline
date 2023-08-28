@@ -1,23 +1,10 @@
 use app::*;
 use axum::{routing::post, Router};
-use clap::Parser;
 use fileserv::file_and_error_handler;
 use leptos::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
-use std::net::{IpAddr, SocketAddr};
-use std::str::FromStr;
 
 pub mod fileserv;
-
-#[derive(Parser, Debug)]
-#[clap(name = "site", about = "site addr for example")]
-struct SiteOverrides {
-    #[clap(short = 'a', long = "addr", default_value = "::1")]
-    addr: String,
-
-    #[clap(short = 'p', long = "port", default_value = "3000")]
-    port: u16,
-}
 
 #[tokio::main]
 async fn main() {
@@ -26,11 +13,7 @@ async fn main() {
     let conf = get_configuration(None).await.unwrap();
     let leptos_options = conf.leptos_options;
 
-    let site_opt = SiteOverrides::parse();
-    let addr = SocketAddr::from((
-        IpAddr::from_str(site_opt.addr.as_str()).unwrap(),
-        site_opt.port,
-    ));
+    let addr = leptos_options.site_addr;
     let routes = generate_route_list(|| view! { <App/> }).await;
 
     // build our application with a route

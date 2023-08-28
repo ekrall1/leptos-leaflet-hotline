@@ -1,9 +1,14 @@
-use leptos::{IntoView,view,create_signal,create_effect,log,component,tracing,MaybeSignal,SignalGet};
+use leptos::{
+    component, create_effect, create_signal, log, tracing, view, IntoView, MaybeSignal, SignalGet,
+};
 use leptos_leaflet::leaflet as L;
-use leptos_leaflet::{MapEvents,MapContainer,Position,TileLayer,Marker,Popup,Polyline,Tooltip,Circle,position,positions};
-use leptos_meta::{provide_meta_context,Stylesheet,Script,Title};
-use leptos_router::{Router,Routes,Route};
+use leptos_leaflet::{
+    position, positions, Circle, MapContainer, MapEvents, Marker, Popup, Position, TileLayer,
+    Tooltip,
+};
 use leptos_leaflet_hotline::*;
+use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
+use leptos_router::{Route, Router, Routes};
 
 pub mod error_template;
 
@@ -37,7 +42,7 @@ pub fn App() -> impl IntoView {
 /// Renders the home page of your application.
 #[component]
 fn HomePage() -> impl IntoView {
-    let (pos, set_pos) = create_signal(Position::new(39.8283, -98.5795));
+    let (pos, _set_pos) = create_signal(Position::new(39.8283, -98.5795));
     let (map, set_map) = create_signal(None::<L::Map>);
 
     create_effect(move |_| {

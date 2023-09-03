@@ -2,6 +2,7 @@ use crate::renderer::{Renderer, RendererOptions};
 
 use js_sys::Object;
 use leptos_leaflet::leaflet as L;
+use std::ops::DerefMut;
 use wasm_bindgen::prelude::*;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 
@@ -45,8 +46,18 @@ impl CanvasOptions {
     L::object_property_set!(tolerance, f64);
 }
 
+impl DerefMut for CanvasOptions {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.obj
+    }
+}
+
 impl Default for CanvasOptions {
     fn default() -> Self {
-        Self::new()
+        let mut canvas_opts = CanvasOptions {
+            obj: RendererOptions::default(),
+        };
+        canvas_opts.tolerance(0.0);
+        canvas_opts
     }
 }

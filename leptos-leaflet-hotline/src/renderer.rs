@@ -1,14 +1,16 @@
+use crate::blanket_overlay::{BlanketOverlay, BlanketOverlayOptions};
 use js_sys::Object;
 use leptos_leaflet::leaflet as L;
+use std::ops::DerefMut;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(extends = Object)]
+    #[wasm_bindgen(extends = BlanketOverlayOptions)]
     #[derive(Debug, Clone, PartialEq)]
     pub type RendererOptions;
 
-    #[wasm_bindgen(extends = L::Layer)]
+    #[wasm_bindgen(extends = BlanketOverlay)]
     #[derive(Debug, Clone, PartialEq)]
     pub type Renderer;
 
@@ -24,17 +26,18 @@ extern "C" {
 
 impl RendererOptions {
     L::object_constructor!();
-    L::object_property_set!(pane, &str);
-    L::object_property_set!(attribution, &str);
-    L::object_property_set!(bubbling_mouse_events, bool);
+}
+
+impl DerefMut for RendererOptions {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.obj
+    }
 }
 
 impl Default for RendererOptions {
     fn default() -> Self {
-        let mut opts = Self::new();
-        opts.pane("overlayPane");
-        opts.attribution("null");
-        opts.bubbling_mouse_events(true);
-        opts
+        RendererOptions {
+            obj: BlanketOverlayOptions::default(),
+        }
     }
 }

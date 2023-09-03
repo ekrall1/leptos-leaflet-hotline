@@ -1,6 +1,8 @@
+mod blanket_overlay;
 mod browser;
 mod canvas;
 mod renderer;
+pub use blanket_overlay::{BlanketOverlay, BlanketOverlayOptions};
 pub use browser::Browser;
 pub use canvas::{Canvas, CanvasOptions};
 pub use renderer::{Renderer, RendererOptions};

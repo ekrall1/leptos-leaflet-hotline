@@ -8,5 +8,4 @@ examples
 leptos-leaflet-hotline
 |_src (source code for the project)
 ```
-The package `cargo-leptos` must be installed before running the example.
-The example can be launched from the `ssr-example` using `cargo leptos watch`.
+The example is set up using the Leptos Axum template and contains a README with additional description.

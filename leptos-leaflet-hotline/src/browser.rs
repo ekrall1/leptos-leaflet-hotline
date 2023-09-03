@@ -1,4 +1,4 @@
-use js_sys::*;
+use js_sys::JsString;
 use std::ops::Deref;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;

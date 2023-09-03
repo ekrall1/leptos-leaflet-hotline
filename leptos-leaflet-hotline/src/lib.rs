@@ -1,5 +1,9 @@
 mod browser;
+mod canvas;
+mod renderer;
 pub use browser::Browser;
+pub use canvas::{Canvas, CanvasOptions};
+pub use renderer::{Renderer, RendererOptions};
 
 use leptos::*;
 use leptos_leaflet::leaflet as L;

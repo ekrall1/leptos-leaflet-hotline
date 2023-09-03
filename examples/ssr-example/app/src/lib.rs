@@ -6,7 +6,7 @@ use leptos_leaflet::{
     position, positions, Circle, MapContainer, MapEvents, Marker, Popup, Position, TileLayer,
     Tooltip,
 };
-use leptos_leaflet_hotline::*;
+use leptos_leaflet_hotline::{hotline_vals, Hotline};
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
 
@@ -58,7 +58,7 @@ fn HomePage() -> impl IntoView {
     let events = MapEvents::new().location_found(location_found);
 
     view! {
-        <MapContainer style="height: 100vh" center=Position::new(39.8283, -98.5795) zoom=18.0 set_view=false map=set_map locate=false watch=true events>
+        <MapContainer style="height: 100vh" center=Position::new(39.8283, -98.5795) zoom=14.0 set_view=false map=set_map locate=false watch=true events>
             <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"/>
             <Marker position=pos >
                 <Popup>
@@ -66,11 +66,11 @@ fn HomePage() -> impl IntoView {
                 </Popup>
             </Marker>
             <Tooltip position=pos permanent=true direction="top">
-                <strong>{"This is the center of USA"}</strong>
+                <strong>{"This is the geographic center of USA"}</strong>
             </Tooltip>
-            <Hotline positions=positions(&[(39.8283, -98.5795), (39.7283, -77.456707), (39.8283, -98.4795)])/>
-            <Circle center=position!(39.8293, -98.5785) color="#0000CC" radius=200.0 class_name="mycircle">
-                <Tooltip sticky=true permanent=true>{"This is a circle"}</Tooltip>
+            <Hotline positions=positions(&[(39.8283, -98.5795), (39.7283, -77.456707), (39.8283, -98.4795)]) hotline_vals=hotline_vals(&[1.0, 10.0, 50.0]) />
+            <Circle center=position!(39.8393, -98.5785) color="#0000CC" radius=200.0 class_name="mycircle">
+                <Tooltip sticky=true permanent=true>{"This is a tooltip for a circle."}</Tooltip>
             </Circle>
         </MapContainer>
     }

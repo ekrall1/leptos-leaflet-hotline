@@ -6,7 +6,7 @@ use leptos_leaflet::{
     position, positions, Circle, MapContainer, MapEvents, Marker, Popup, Position, TileLayer,
     Tooltip,
 };
-use leptos_leaflet_hotline::{hotline_vals, Hotline};
+use leptos_leaflet_hotline::{hotline_vals, new_hotline_positions, Hotline};
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
 
@@ -23,6 +23,7 @@ pub fn App() -> impl IntoView {
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leaflet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
         <Script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"/>
+        <Script src="https://unpkg.com/leaflet-hotline@0.4.0/src/leaflet.hotline.js" />
         <Stylesheet id="leptos" href="/pkg/leptos-leaflet-hotline.css"/>
 
         // sets the document title
@@ -68,7 +69,10 @@ fn HomePage() -> impl IntoView {
             <Tooltip position=pos permanent=true direction="top">
                 <strong>{"This is the geographic center of USA"}</strong>
             </Tooltip>
-            <Hotline positions=positions(&[(39.8283, -98.5795), (39.7283, -77.456707), (39.8283, -98.4795)]) hotline_vals=hotline_vals(&[1.0, 10.0, 50.0]) />
+            <Hotline 
+                positions=new_hotline_positions(&[(39.8283, -98.5795, -20.0), (39.8183, -98.5795, 0.2), (39.8083, -98.4795, 50.0)]) 
+                palette=palette_from(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)]) 
+            />
             <Circle center=position!(39.8393, -98.5785) color="#0000CC" radius=200.0 class_name="mycircle">
                 <Tooltip sticky=true permanent=true>{"This is a tooltip for a circle."}</Tooltip>
             </Circle>

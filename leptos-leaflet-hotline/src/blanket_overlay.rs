@@ -36,6 +36,9 @@ extern "C" {
 
     #[wasm_bindgen(method)]
     pub fn _reset(this: &BlanketOverlay) -> BlanketOverlay;
+
+    #[wasm_bindgen(method)]
+    pub fn _initContainer(this: &BlanketOverlay) -> BlanketOverlay;
 }
 
 impl BlanketOverlayOptions {

@@ -89,17 +89,9 @@ extern "C" {
     #[wasm_bindgen(constructor, js_namespace=L)]
     pub fn new(hotline_data: &Array, opts: &JsValue) -> Hotline;
 
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen(method, js_name = "getRGBForValue")]
     pub fn get_rgb_for_value(this: &Hotline, value: f64) -> Array;
 
-    #[wasm_bindgen(method, js_name = "_projectLatLngs")]
-    pub fn _project_lat_lngs(this: &Hotline, latlngs: &Array, projected_bounds: &Array);
-
-    #[wasm_bindgen(method, js_name = "_clipPoints")]
-    pub fn _clip_points(this: &Hotline);
-
-    #[wasm_bindgen(method, js_name = "_clipPoints")]
-    pub fn _click_tolerance(this: &Hotline);
 }
 
 #[derive(Debug, Clone, PartialEq)]

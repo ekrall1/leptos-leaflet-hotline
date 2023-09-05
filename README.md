@@ -25,17 +25,16 @@ To add a hotline to a map, use the `HotPolyline` component.  The `positions` and
 
 e.g., 
 ```
-            <HotPolyline
-                positions=hotline_positions(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
-                palette=hotline_palette(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
-            />
+<HotPolyline
+    positions=hotline_positions(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
+    palette=hotline_palette(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
+/>
 ```
 
 ## Screenshots
 
 A hotline with randomly generated values along the path.
+
 ![example 1](./examples/screenshots/example1.PNG)
 
-A hotline connecting some locations, with randomly generated values and a different palette.
-![example 2](./examples/screenshots/example2.PNG)
 

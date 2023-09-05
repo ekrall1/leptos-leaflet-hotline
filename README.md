@@ -21,7 +21,8 @@ The exeample is set up using the Leptos Axum template and contains a README with
 
 ## Usage
 
-Ensure leaflet and leaflet-hotline are in your project.  For example, see `./examples/ssr-example/app/src/lib.rs`
+Ensure leaflet and leaflet-hotline are in your project.  For example, see `./examples/ssr-example/app/src/lib.rs`.
+
 To add a hotline to a map, use the `HotPolyline` component.  The `positions` and `palette` props define the path and palette for the color gradient, respectively. As in `leaflet-hotline`, the values being visualized along the path are specified in the third element of each position (i.e., `positions` is an array of `(lat, lng, value)` tuples).  At some point I want to change this so the values do not have to be part of the latlng data type, but that would require a fair amount of decoupling from the existing JS bindings and will take some time.
 
 e.g., 

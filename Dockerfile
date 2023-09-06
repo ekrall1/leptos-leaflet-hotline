@@ -1,16 +1,12 @@
 FROM rust:1.70
 
 SHELL ["/bin/sh", "-c"]
-RUN apt update -y && apt upgrade -y
 
-ARG USERNAME=rust
-ARG UID=1000
-ARG GID=${UID}
-ENV APPROOT=/opt/app-root
-ENV EXROOT=${APPROOT}/examples
-ENV PKGROOT=${APPROOT}/leptos-leaflet-hotline
+ARG USERNAME=rust UID=1000 GID=1000
+ENV APPROOT=/opt/app-root EXROOT=/opt/app-root/examples PKGROOT=/opt/app-root/leptos-leaflet-hotline
 
-RUN groupadd --gid ${GID} ${USERNAME} && useradd --uid ${UID} --gid ${GID} -m ${USERNAME} && \
+RUN apt update -y && apt upgrade -y && \
+    groupadd --gid ${GID} ${USERNAME} && useradd --uid ${UID} --gid ${GID} -m ${USERNAME} && \
     mkdir -p ${APPROOT} ${PKGROOT}/src \
     ${EXROOT}/ssr-example \
     ${EXROOT}/ssr-example/app ${EXROOT}/ssr-example/server ${EXROOT}/ssr-example/frontend \
@@ -28,8 +24,6 @@ COPY --chown=${UID}:${GID} ./examples/ssr-example/frontend/Cargo.toml ${EXROOT}/
 COPY --chown=${UID}:${GID} ./examples/ssr-example/frontend/src/*.rs ${EXROOT}/ssr-example/frontend/src/
 COPY --chown=${UID}:${GID} ./examples/ssr-example/style/*.scss ${EXROOT}/ssr-example/style/
 COPY --chown=${UID}:${GID} ./examples/ssr-example/public/favicon.ico ${EXROOT}/ssr-example/public/
-
-#RUN sed -i 's/site-addr = "127.0.0.1/site-addr = "0.0.0.0/g' ${EXROOT}/ssr-example/Cargo.toml
 
 WORKDIR ${APPROOT}/ssr-example
 RUN sed -i 's/site-addr = "127.0.0.1/site-addr = "0.0.0.0/g' ${EXROOT}/ssr-example/Cargo.toml && \
@@ -50,5 +44,9 @@ RUN sed -i 's/site-addr = "127.0.0.1/site-addr = "0.0.0.0/g' ${EXROOT}/ssr-examp
 WORKDIR ${EXROOT}/ssr-example/app
 EXPOSE 3000 3000
 EXPOSE 3001 3001
+
+RUN chown 1000:1000 -R ${APPROOT} && chmod -R 774 ${APPROOT} && \
+    chown 1000:1000 -R /usr/local/cargo/registry && chmod -R 774 /usr/local/cargo/registry
+USER ${USERNAME}
 
 CMD ["/bin/bash", "-c", "cargo leptos watch"]

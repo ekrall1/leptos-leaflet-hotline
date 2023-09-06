@@ -1,0 +1,8 @@
+services:
+  hotline-demo:
+    build: .
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - LEPTOS_OUTPUT_NAME=leptos-leaflet-hotline

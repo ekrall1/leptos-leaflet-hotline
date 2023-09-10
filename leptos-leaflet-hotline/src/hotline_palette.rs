@@ -33,5 +33,5 @@ impl Default for HotlinePalette {
 }
 
 pub fn hotline_palette(palette: &[(&str, f64)]) -> HotlinePalette {
-    HotlinePalette::new(&palette)
+    HotlinePalette::new(palette)
 }

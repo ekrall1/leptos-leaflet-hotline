@@ -36,7 +36,6 @@ pub fn HotPolyline(
         {
             let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
             let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
-            log!("{:?}", opts);
             let hotline: Hotline = Hotline::new(&lat_lngs, &opts);
 
             hotline.addTo(&map); // adds it to the map, but still have not implemented everything

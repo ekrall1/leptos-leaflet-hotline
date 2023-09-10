@@ -13,7 +13,8 @@ pub struct HotlinePalette {
 }
 
 impl HotlinePalette {
-    #[must_use] pub fn new(palette: &[(&str, f64)]) -> Self {
+    #[must_use]
+    pub fn new(palette: &[(&str, f64)]) -> Self {
         let mut palette_hashmap = HashMap::new();
 
         for &(key, val) in palette {
@@ -32,7 +33,7 @@ impl Default for HotlinePalette {
     }
 }
 
-
-#[must_use] pub fn hotline_palette(palette: &[(&str, f64)]) -> HotlinePalette {
+#[must_use]
+pub fn hotline_palette(palette: &[(&str, f64)]) -> HotlinePalette {
     HotlinePalette::new(palette)
 }

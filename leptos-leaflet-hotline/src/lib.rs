@@ -36,15 +36,10 @@ pub fn add_hotline_to_map(
     overlay: StoredValue<Option<Hotline>>,
 ) {
     let map: Result<L::Map, Error> = is_ok!(map_context);
-    match map {
-        Ok(map_ref) => {
-            hotline.addTo(&map_ref);
-            update_overlay_context(&hotline);
-            overlay.set_value(Some(hotline));
-        }
-        Err(err) => {
-            log!("error adding hotline to map {:?}", err);
-        }
+    if let Ok(map_ref) = map {
+        hotline.addTo(&map_ref);
+        update_overlay_context(&hotline);
+        overlay.set_value(Some(hotline));
     }
 }
 
@@ -77,7 +72,7 @@ pub fn HotPolyline(
         let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
         let hotline = Hotline::new(&lat_lngs, &opts);
 
-        let map_context: Option<LeafletMapContext> = use_context::<LeafletMapContext>();
+        let map_context = use_context::<LeafletMapContext>();
         let context = is_ok!(map_context);
 
         match context {

@@ -48,7 +48,8 @@ extern "C" {
 }
 
 impl HotlineOptions {
-    #[must_use] pub fn new(
+    #[must_use]
+    pub fn new(
         palette: &HotlinePalette,
         outline_color: &Option<MaybeSignal<String>>,
         max: &Option<MaybeSignal<f64>>,
@@ -74,7 +75,8 @@ impl HotlineOptions {
         opts
     }
 
-    #[must_use] pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
+    #[must_use]
+    pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
         let palette_opts = Object::new();
 
         for (color, bkpt) in &palette.palette {
@@ -84,19 +86,22 @@ impl HotlineOptions {
         JsCast::unchecked_into(palette_opts)
     }
 
-    #[must_use] pub fn outline_color_to_js(outline_color: &Option<MaybeSignal<String>>) -> JsValue {
+    #[must_use]
+    pub fn outline_color_to_js(outline_color: &Option<MaybeSignal<String>>) -> JsValue {
         let js_outline_color = outline_color
             .as_ref()
             .map_or_else(|| "black".to_string(), SignalGetUntracked::get_untracked);
         JsCast::unchecked_into(JsString::from(js_outline_color))
     }
 
-    #[must_use] pub fn max_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
+    #[must_use]
+    pub fn max_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
         let js_val = val.as_ref().map_or(1.0, SignalGetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 
-    #[must_use] pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
+    #[must_use]
+    pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
         let js_val = val.as_ref().map_or(0.0, SignalGetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }

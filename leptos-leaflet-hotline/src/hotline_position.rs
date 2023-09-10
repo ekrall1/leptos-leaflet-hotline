@@ -15,21 +15,21 @@ pub struct HotlinePosition {
 }
 
 impl HotlinePosition {
-    
-    #[must_use] pub const fn new(lat: f64, lng: f64, alt: f64) -> Self {
+    #[must_use]
+    pub const fn new(lat: f64, lng: f64, alt: f64) -> Self {
         Self {
             latlng: FlatPosition { lat, lng },
             alt,
         }
     }
 
-    
-    #[must_use] pub const fn get_lat(&self) -> f64 {
+    #[must_use]
+    pub const fn get_lat(&self) -> f64 {
         self.latlng.lat
     }
 
-    
-    #[must_use] pub const fn get_lng(&self) -> f64 {
+    #[must_use]
+    pub const fn get_lng(&self) -> f64 {
         self.latlng.lng
     }
 }
@@ -65,7 +65,8 @@ extern "C" {
     pub fn set_alt(this: &LatLng, value: f64) -> f64;
 }
 
-#[must_use] pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
+#[must_use]
+pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
     let array = Array::new();
     for val in vals.iter().copied() {
         let new_latlng = LatLng::new(val.get_lat(), val.get_lng(), val.alt);

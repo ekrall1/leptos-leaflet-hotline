@@ -63,11 +63,8 @@ fn HomePage() -> impl IntoView {
                 positions=hotline_positions(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
                 palette=hotline_palette(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
                 outline_color=hotline_prop_string("#5a5a5a")
-<<<<<<< HEAD
                 max=hotline_prop_float(1.0)
                 min=hotline_prop_float(0.0)
-=======
->>>>>>> c316473 (add some methods, reorganize modules.  remove getRGBFromValue method b/c bindgen is not picking up _renderer object)
             />
         </MapContainer>
     }

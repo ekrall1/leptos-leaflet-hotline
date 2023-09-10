@@ -38,11 +38,6 @@ pub fn HotPolyline(
             let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
             let hotline: Hotline = Hotline::new(&lat_lngs, &opts);
 
-            match &outline_color {
-                Some(color) => hotline.set_outline_color(&color.get_untracked()),
-                None => {}
-            }
-
             hotline.addTo(&map); // adds it to the map, but still have not implemented everything
             update_overlay_context(&hotline);
             overlay.set_value(Some(hotline));

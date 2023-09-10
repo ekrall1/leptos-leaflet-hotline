@@ -53,15 +53,14 @@ pub struct Browser {
 fn check_edge() -> bool {
     let window = window().expect("Missing Window");
     let agent = window.navigator().user_agent().clone();
-    let edge = JsString::from(JsValue::from_str(&agent.unwrap()))
+    JsString::from(JsValue::from_str(&agent.unwrap()))
         .to_lower_case()
-        .includes("edg", 0);
-    edge
+        .includes("edg", 0)
 }
 
 #[wasm_bindgen]
 impl Browser {
-    pub fn default() -> Browser {
+    pub fn get() -> Browser {
         Browser {
             chrome: *CHROME.deref(),
             safari: *SAFARI.deref(),

@@ -61,11 +61,13 @@ impl HotlineOptions {
         };
         let js_outline_color = Self::outline_color_to_js(outline_color);
         let js_max = Self::max_to_js(max);
+        let js_min = Self::min_to_js(min);
 
         let opts: HotlineOptions = JsCast::unchecked_into(Object::new());
         opts.set_palette(&js_palette);
         opts.set_outline_color(&js_outline_color);
         opts.set_max(&js_max);
+        opts.set_min(&js_min);
         opts
     }
 
@@ -98,7 +100,7 @@ impl HotlineOptions {
     pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
         let js_val = match val {
             Some(min) => min.get_untracked(),
-            None => 1.0,
+            None => 0.0,
         };
         JsValue::from_f64(js_val)
     }
@@ -106,19 +108,20 @@ impl HotlineOptions {
 
 #[wasm_bindgen]
 impl Hotline {
-    pub fn set_outline_color(&self, color: &str) {
+    pub fn set_outline_color_val(&self, color: &str) {
         let obj = js_sys::Object::new();
         js_sys::Reflect::set(&obj, &"outlineColor".into(), &JsValue::from(color)).unwrap();
 
+        // Call the set_style method with the created object.
         self.set_style(&obj);
     }
-    pub fn set_max(&self, max: f64) {
+    pub fn set_max_val(&self, max: f64) {
         let obj = js_sys::Object::new();
         js_sys::Reflect::set(&obj, &"max".into(), &JsValue::from_f64(max)).unwrap();
 
         self.set_style(&obj);
     }
-    pub fn set_min(&self, min: f64) {
+    pub fn set_min_val(&self, min: f64) {
         let obj = js_sys::Object::new();
         js_sys::Reflect::set(&obj, &"max".into(), &JsValue::from_f64(min)).unwrap();
 

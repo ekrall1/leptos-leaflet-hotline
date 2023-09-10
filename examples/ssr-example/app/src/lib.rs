@@ -1,12 +1,18 @@
+//! Example using leptos-leaflet-hotline [HotPolyline] component
 use leptos::{component, create_effect, create_signal, log, tracing, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
-use leptos_leaflet_hotline::*;
+use leptos_leaflet_hotline::{
+    hotline_palette, hotline_positions, hotline_prop_float, hotline_prop_string, HotPolyline,
+};
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
 
 pub mod error_template;
 
+/// Container for the example app. \
+/// Returns [IntoView] that converts RSX values defining context, stylesheets, scripts, title,
+/// and content into a view that can be mounted to the DOM.
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -24,7 +30,7 @@ pub fn App() -> impl IntoView {
         // sets the document title
         <Title text="leptos-leaflet-hotline example"/>
 
-        // content for this welcome page
+        // content for this page
         <Router>
             <main>
                 <Routes>

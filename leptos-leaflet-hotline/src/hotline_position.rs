@@ -15,18 +15,21 @@ pub struct HotlinePosition {
 }
 
 impl HotlinePosition {
-    pub fn new(lat: f64, lng: f64, alt: f64) -> Self {
-        HotlinePosition {
+    
+    #[must_use] pub const fn new(lat: f64, lng: f64, alt: f64) -> Self {
+        Self {
             latlng: FlatPosition { lat, lng },
             alt,
         }
     }
 
-    pub fn get_lat(&self) -> f64 {
+    
+    #[must_use] pub const fn get_lat(&self) -> f64 {
         self.latlng.lat
     }
 
-    pub fn get_lng(&self) -> f64 {
+    
+    #[must_use] pub const fn get_lng(&self) -> f64 {
         self.latlng.lng
     }
 }
@@ -62,9 +65,9 @@ extern "C" {
     pub fn set_alt(this: &LatLng, value: f64) -> f64;
 }
 
-pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
+#[must_use] pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
     let array = Array::new();
-    for val in vals.iter().cloned() {
+    for val in vals.iter().copied() {
         let new_latlng = LatLng::new(val.get_lat(), val.get_lng(), val.alt);
         array.push(&new_latlng);
     }
@@ -72,15 +75,7 @@ pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
 }
 
 pub fn hotline_positions(positions: &[(f64, f64, f64)]) -> Vec<HotlinePosition> {
-    let normed = &normalize_hotline_vals(positions);
-    normed
-        .iter()
-        .map(|&position| HotlinePosition::new(position.0, position.1, position.2))
-        .collect()
-}
-
-pub fn normalize_hotline_vals(positions: &[(f64, f64, f64)]) -> Vec<(f64, f64, f64)> {
-    let max_val: f64 = positions
+    let max_val = positions
         .iter()
         .map(|val| val.2)
         .fold(f64::NEG_INFINITY, f64::max);
@@ -89,4 +84,7 @@ pub fn normalize_hotline_vals(positions: &[(f64, f64, f64)]) -> Vec<(f64, f64, f
         .map(|&(lat, lng, val)| (lat, lng, val / max_val))
         .collect();
     normed
+        .iter()
+        .map(|&position| HotlinePosition::new(position.0, position.1, position.2))
+        .collect()
 }

@@ -1,7 +1,13 @@
 [package]
 name = "leptos-leaflet-hotline"
+description = "leptos leaflet polyline components with color gradients"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/ekrall1/leptos-leaflet-hotline"
+readme = "README.md"
+license = "MIT"
+keywords = ["leptos", "leaflet", "leptos-leaflet", "hotline", "interactive-maps"]
+categories = ["development", "development::plugins", "interactive-maps::plugins"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

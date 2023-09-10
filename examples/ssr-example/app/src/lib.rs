@@ -1,9 +1,7 @@
 use leptos::{component, create_effect, create_signal, log, tracing, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
-use leptos_leaflet_hotline::{
-    hotline_palette, hotline_positions, hotline_prop_string, HotPolyline,
-};
+use leptos_leaflet_hotline::*;
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
 
@@ -65,6 +63,8 @@ fn HomePage() -> impl IntoView {
                 positions=hotline_positions(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
                 palette=hotline_palette(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
                 outline_color=hotline_prop_string("#5a5a5a")
+                max=hotline_prop_float(1.0)
+                min=hotline_prop_float(0.0)
             />
         </MapContainer>
     }

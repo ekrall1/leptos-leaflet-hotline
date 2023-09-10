@@ -12,12 +12,17 @@ use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, Leafle
 pub fn hotline_prop_string(prop: &str) -> MaybeSignal<String> {
     MaybeSignal::Static(prop.to_string())
 }
+pub fn hotline_prop_float(prop: f64) -> MaybeSignal<f64> {
+    MaybeSignal::Static(prop)
+}
 
 #[component(transparent)]
 pub fn HotPolyline(
     #[prop(into)] positions: MaybeSignal<Vec<HotlinePosition>>,
     #[prop(into)] palette: MaybeSignal<HotlinePalette>,
     #[prop(optional)] outline_color: Option<MaybeSignal<String>>,
+    #[prop(optional)] max: Option<MaybeSignal<f64>>,
+    #[prop(optional)] min: Option<MaybeSignal<f64>>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     extend_context_with_overlay();
@@ -30,13 +35,9 @@ pub fn HotPolyline(
             .map()
         {
             let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
-            let opts = HotlineOptions::new(&palette.get_untracked());
+            let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
+            log!("{:?}", opts);
             let hotline: Hotline = Hotline::new(&lat_lngs, &opts);
-
-            match &outline_color {
-                Some(color) => hotline.set_outline_color(&color.get_untracked()),
-                None => {}
-            }
 
             hotline.addTo(&map); // adds it to the map, but still have not implemented everything
             update_overlay_context(&hotline);

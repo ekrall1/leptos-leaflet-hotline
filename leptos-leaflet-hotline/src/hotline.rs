@@ -129,6 +129,17 @@ impl Hotline {
     }
 }
 
+#[wasm_bindgen]
+impl Hotline {
+    pub fn set_outline_color(&self, color: &str) {
+        let obj = js_sys::Object::new();
+        js_sys::Reflect::set(&obj, &"outlineColor".into(), &JsValue::from(color)).unwrap();
+
+        // Call the set_style method with the created object.
+        self.set_style(&obj);
+    }
+}
+
 /// similar to the impl used for From<Polyline> for Layer in leptos-leaflet
 /// see: https://github.com/headless-studio/leptos-leaflet
 /// specifically: https://github.com/headless-studio/leptos-leaflet/blob/main/leaflet/src/shapes/polyline.rs

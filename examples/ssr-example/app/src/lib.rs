@@ -1,7 +1,13 @@
 use leptos::{component, create_effect, create_signal, log, tracing, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
+<<<<<<< HEAD
 use leptos_leaflet_hotline::*;
+=======
+use leptos_leaflet_hotline::{
+    hotline_palette, hotline_positions, hotline_prop_string, HotPolyline,
+};
+>>>>>>> f51a38df915bbfe1fc6b984dfceabb305f2f30d7
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
 

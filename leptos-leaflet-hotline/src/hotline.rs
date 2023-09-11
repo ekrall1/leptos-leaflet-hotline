@@ -141,7 +141,7 @@ impl Hotline {
     #[inline]
     pub fn set_min_val(&self, min: f64) {
         let obj = js_sys::Object::new();
-        Reflect::set(&obj, &"max".into(), &JsValue::from_f64(min)).unwrap_or(true);
+        Reflect::set(&obj, &"min".into(), &JsValue::from_f64(min)).unwrap_or(true);
 
         self.set_style(&obj);
     }

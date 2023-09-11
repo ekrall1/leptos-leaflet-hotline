@@ -72,7 +72,6 @@ pub fn HotPolyline(
         let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
 
         let hotline = Hotline::new(&lat_lngs, &opts);
-        log!("{:?}", hotline);
         let map_context = use_context::<LeafletMapContext>();
         let context = is_ok!(map_context);
 

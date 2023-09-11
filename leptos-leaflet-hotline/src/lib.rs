@@ -56,7 +56,7 @@ pub fn HotPolyline(
     #[prop(optional)]
     outline_color: Option<MaybeSignal<String>>,
     /// max breakpoint to use for palette
-    #[prop(optional)]
+    #[prop(optional, into)]
     max: Option<MaybeSignal<f64>>,
     /// min breakpoint to use for palette
     #[prop(optional)]
@@ -70,8 +70,9 @@ pub fn HotPolyline(
     create_effect(move |_| -> Result<(), Error> {
         let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
         let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
-        let hotline = Hotline::new(&lat_lngs, &opts);
 
+        let hotline = Hotline::new(&lat_lngs, &opts);
+        log!("{:?}", hotline);
         let map_context = use_context::<LeafletMapContext>();
         let context = is_ok!(map_context);
 

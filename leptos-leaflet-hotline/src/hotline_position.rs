@@ -128,15 +128,7 @@ pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
 ///
 #[inline]
 pub fn hotline_positions(positions: &[(f64, f64, f64)]) -> Vec<HotlinePosition> {
-    let normed = &normalize_hotline_vals(positions);
-    normed
-        .iter()
-        .map(|&position| HotlinePosition::new(position.0, position.1, position.2))
-        .collect()
-}
-
-pub fn normalize_hotline_vals(positions: &[(f64, f64, f64)]) -> Vec<(f64, f64, f64)> {
-    let max_val: f64 = positions
+    let max_val = positions
         .iter()
         .map(|val| val.2)
         .fold(f64::NEG_INFINITY, f64::max);
@@ -145,4 +137,7 @@ pub fn normalize_hotline_vals(positions: &[(f64, f64, f64)]) -> Vec<(f64, f64, f
         .map(|&(lat, lng, val)| (lat, lng, val / max_val))
         .collect();
     normed
+        .iter()
+        .map(|&position| HotlinePosition::new(position.0, position.1, position.2))
+        .collect()
 }

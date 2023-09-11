@@ -18,7 +18,7 @@ macro_rules! is_ok {
 }
 
 #[inline]
-pub fn add_hotline_to_map(
+fn add_hotline_to_map(
     map_context: Option<L::Map>,
     hotline: Hotline,
     overlay: StoredValue<Option<Hotline>>,
@@ -31,7 +31,29 @@ pub fn add_hotline_to_map(
     }
 }
 
-/// Creates hot polyline functional component and adds to a leptos leaflet map
+/// Creates hot polyline functional component that can be wrapped in a leptos leaflet map container
+/// # Examples
+/// 
+/// Basic usage:
+/// ```
+/// #[component]
+/// fn MyMapPage() -> leptos::IntoView {
+///     let (pos, set_pos) = leptos::create_signal(leptos_leaflet::Position::new(90.000, 135.000));
+///     let (map, set_map) = leptos::create_signal(None::<leptos_leaflet::leaflet::Map>);
+///     
+///     leptos::view! {
+///         <leptos_leaflet::MapContainer style="height: 100vh" center=Position::new(90.000, 135.000) zoom=17.0 set_view=false map=set_map locate=false watch=true events>
+///             <leptos_leaflet_hotline::HotPolyline
+///                 positions=leptos_leaflet_hotline::hotline_positions(&[(90.000, 135.000, 0), (90.010, 135.010, 100)])
+///                 palette=make_hotline_palette(&[("green", 0.0), ("red", 1.0)])
+///                 outline_color="white"
+///                 max=1.0
+///                 min=0.0
+///             />
+///         </leptos_leaflet::MapContainer>
+///     }
+/// }
+/// ```
 #[component(transparent)]
 pub fn HotPolyline(
     /// hotline (lat, lng, value) tuples

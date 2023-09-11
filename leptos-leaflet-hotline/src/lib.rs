@@ -11,18 +11,6 @@ use leptos::{
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
 
-#[must_use]
-#[inline]
-pub fn hotline_prop_string(prop: &str) -> MaybeSignal<String> {
-    MaybeSignal::Static(prop.to_owned())
-}
-
-#[must_use]
-#[inline]
-pub const fn hotline_prop_float(prop: f64) -> MaybeSignal<f64> {
-    MaybeSignal::Static(prop)
-}
-
 macro_rules! is_ok {
     ($opt:expr) => {
         $opt.ok_or(Error)
@@ -53,13 +41,13 @@ pub fn HotPolyline(
     #[prop(into)]
     palette: MaybeSignal<HotlinePalette>,
     /// color of the polyline's outline
-    #[prop(optional)]
+    #[prop(optional, into)]
     outline_color: Option<MaybeSignal<String>>,
     /// max breakpoint to use for palette
     #[prop(optional, into)]
     max: Option<MaybeSignal<f64>>,
     /// min breakpoint to use for palette
-    #[prop(optional)]
+    #[prop(optional, into)]
     min: Option<MaybeSignal<f64>>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {

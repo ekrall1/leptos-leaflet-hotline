@@ -1,9 +1,6 @@
 //! Module for hot polyline functional component
-mod hotline;
-pub use hotline::{
-    hotline_palette, hotline_positions, to_hotline_lat_lng_array, Hotline, HotlineOptions,
-    HotlinePalette, HotlinePosition, LatLng as HotlineLatLng,
-};
+pub mod hotline;
+pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptions};
 
 use core::fmt::Error;
 #[allow(unused_imports)]
@@ -14,22 +11,13 @@ use leptos::{
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
 
-#[must_use]
-pub fn hotline_prop_string(prop: &str) -> MaybeSignal<String> {
-    MaybeSignal::Static(prop.to_string())
-}
-
-#[must_use]
-pub const fn hotline_prop_float(prop: f64) -> MaybeSignal<f64> {
-    MaybeSignal::Static(prop)
-}
-
 macro_rules! is_ok {
     ($opt:expr) => {
         $opt.ok_or(Error)
     };
 }
 
+#[inline]
 pub fn add_hotline_to_map(
     map_context: Option<L::Map>,
     hotline: Hotline,
@@ -53,13 +41,13 @@ pub fn HotPolyline(
     #[prop(into)]
     palette: MaybeSignal<HotlinePalette>,
     /// color of the polyline's outline
-    #[prop(optional)]
+    #[prop(optional, into)]
     outline_color: Option<MaybeSignal<String>>,
     /// max breakpoint to use for palette
-    #[prop(optional)]
+    #[prop(optional, into)]
     max: Option<MaybeSignal<f64>>,
     /// min breakpoint to use for palette
-    #[prop(optional)]
+    #[prop(optional, into)]
     min: Option<MaybeSignal<f64>>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
@@ -70,8 +58,8 @@ pub fn HotPolyline(
     create_effect(move |_| -> Result<(), Error> {
         let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
         let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
-        let hotline = Hotline::new(&lat_lngs, &opts);
 
+        let hotline = Hotline::new(&lat_lngs, &opts);
         let map_context = use_context::<LeafletMapContext>();
         let context = is_ok!(map_context);
 

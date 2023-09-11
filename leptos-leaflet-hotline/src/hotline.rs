@@ -1,9 +1,10 @@
 #[path = "./hotline_palette.rs"]
-mod hotline_palette;
+pub mod hotline_palette;
+use hotline_palette::*;
 #[path = "./hotline_position.rs"]
-mod hotline_position;
-pub use hotline_palette::*;
-pub use hotline_position::*;
+pub mod hotline_position;
+
+use core::mem::drop;
 use js_sys::{Array, JsString, Object, Reflect};
 use wasm_bindgen::prelude::*;
 
@@ -49,6 +50,7 @@ extern "C" {
 
 impl HotlineOptions {
     #[must_use]
+    #[inline]
     pub fn new(
         palette: &HotlinePalette,
         outline_color: &Option<MaybeSignal<String>>,
@@ -76,33 +78,43 @@ impl HotlineOptions {
     }
 
     #[must_use]
+    #[inline]
     pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
         let palette_opts = Object::new();
 
         for (color, bkpt) in &palette.palette {
-            let _ = Reflect::set(&palette_opts, &JsValue::from_f64(*bkpt), &color.into());
+            let res: Result<bool, JsValue> =
+                Reflect::set(&palette_opts, &JsValue::from_f64(*bkpt), &color.into());
+            drop(res);
         }
 
         JsCast::unchecked_into(palette_opts)
     }
 
     #[must_use]
+    #[inline]
     pub fn outline_color_to_js(outline_color: &Option<MaybeSignal<String>>) -> JsValue {
         let js_outline_color = outline_color
             .as_ref()
-            .map_or_else(|| "black".to_string(), SignalGetUntracked::get_untracked);
+            .map_or_else(|| "black".to_owned(), SignalGetUntracked::get_untracked);
         JsCast::unchecked_into(JsString::from(js_outline_color))
     }
 
     #[must_use]
+    #[inline]
     pub fn max_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
-        let js_val = val.as_ref().map_or(1.0, SignalGetUntracked::get_untracked);
+        let js_val = val
+            .as_ref()
+            .map_or(1.0_f64, SignalGetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 
     #[must_use]
+    #[inline]
     pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
-        let js_val = val.as_ref().map_or(0.0, SignalGetUntracked::get_untracked);
+        let js_val = val
+            .as_ref()
+            .map_or(0.0_f64, SignalGetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 }
@@ -111,6 +123,7 @@ impl HotlineOptions {
 impl Hotline {
     /// set a new outline color for the hotline after it has already been created; \
     /// creates JS object with outlineColor k,v pair and calls set_style on self
+    #[inline]
     pub fn set_outline_color_val(&self, color: &str) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"outlineColor".into(), &JsValue::from(color)).unwrap_or(true);
@@ -118,12 +131,14 @@ impl Hotline {
         // Call the set_style method with the created object.
         self.set_style(&obj);
     }
+    #[inline]
     pub fn set_max_val(&self, max: f64) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"max".into(), &JsValue::from_f64(max)).unwrap_or(true);
 
         self.set_style(&obj);
     }
+    #[inline]
     pub fn set_min_val(&self, min: f64) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"max".into(), &JsValue::from_f64(min)).unwrap_or(true);
@@ -136,6 +151,7 @@ impl Hotline {
 /// see: <https://github.com/headless-studio/leptos-leaflet/>
 /// specifically: <https://github.com/headless-studio/leptos-leaflet/blob/main/leaflet/src/shapes/polyline.rs/>
 impl From<Hotline> for L::Layer {
+    #[inline]
     fn from(value: Hotline) -> Self {
         value.unchecked_into()
     }

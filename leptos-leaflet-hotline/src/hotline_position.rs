@@ -1,3 +1,4 @@
+//! module for hotline position data structures and functions
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
@@ -75,10 +76,16 @@ extern "C" {
 /// must be used to convert a slice of Rust HotlinePosition values to JS Array,
 /// prior to calling the hotline constructor bound to JS by wasm-bindgen
 /// 
+/// # Args
+/// `vals` `&`[HotlinePosition] slice of hotline positions with values
+/// 
+/// # Returns
+/// [Array] JS Array of objects containing hotline positions and values
+/// 
 /// # Examples
 /// 
 /// Basic usage:
-/// ```
+/// ```rust
 /// fn f(x: Vec<HotlinePosition>) -> Array {
 ///     to_hotline_lat_lng_array(&x)
 /// }

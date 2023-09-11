@@ -1,13 +1,18 @@
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
+/// Struct for conventional lat, lng position
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct FlatPosition {
     pub lat: f64,
     pub lng: f64,
 }
 
-/// leaflet-hotline uses the 'z' dimension for the hotline values
+/// Struct for leaflet hotline positions
+/// in addition to lat and lng, there is a 3rd dimension \
+/// for the value to be visualized.  \
+/// This is consistent with JS leaflet-hotline which puts
+/// the value in the Leaflet altitude placeholder.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct HotlinePosition {
     pub latlng: FlatPosition,
@@ -65,6 +70,19 @@ extern "C" {
     pub fn set_alt(this: &LatLng, value: f64) -> f64;
 }
 
+/// Creates a JS Array of `{lat: number, lng: number, alt: number}` objects, \
+/// for passing to the JS leaflet-hotline code through wasm bindings.  This
+/// must be used to convert a slice of Rust HotlinePosition values to JS Array,
+/// prior to calling the hotline constructor bound to JS by wasm-bindgen
+/// 
+/// # Examples
+/// 
+/// Basic usage:
+/// ```
+/// fn f(x: Vec<HotlinePosition>) -> Array {
+///     to_hotline_lat_lng_array(&x)
+/// }
+/// ```
 #[must_use]
 pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
     let array = Array::new();

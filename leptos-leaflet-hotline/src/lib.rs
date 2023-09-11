@@ -1,9 +1,6 @@
 //! Module for hot polyline functional component
-mod hotline;
-pub use hotline::{
-    hotline_palette, hotline_positions, to_hotline_lat_lng_array, Hotline, HotlineOptions,
-    HotlinePalette, HotlinePosition, LatLng as HotlineLatLng,
-};
+pub mod hotline;
+pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptions};
 
 use core::fmt::Error;
 #[allow(unused_imports)]
@@ -15,11 +12,13 @@ use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
 
 #[must_use]
+#[inline]
 pub fn hotline_prop_string(prop: &str) -> MaybeSignal<String> {
-    MaybeSignal::Static(prop.to_string())
+    MaybeSignal::Static(prop.to_owned())
 }
 
 #[must_use]
+#[inline]
 pub const fn hotline_prop_float(prop: f64) -> MaybeSignal<f64> {
     MaybeSignal::Static(prop)
 }
@@ -30,6 +29,7 @@ macro_rules! is_ok {
     };
 }
 
+#[inline]
 pub fn add_hotline_to_map(
     map_context: Option<L::Map>,
     hotline: Hotline,

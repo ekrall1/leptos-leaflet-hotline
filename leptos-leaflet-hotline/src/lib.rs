@@ -35,7 +35,7 @@ fn add_hotline_to_map(
 /// # Examples
 /// 
 /// Basic usage:
-/// ```
+/// ```no_run
 /// #[component]
 /// fn MyMapPage() -> leptos::IntoView {
 ///     let (pos, set_pos) = leptos::create_signal(leptos_leaflet::Position::new(90.000, 135.000));

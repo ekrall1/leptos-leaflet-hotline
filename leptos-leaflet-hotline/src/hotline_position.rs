@@ -77,10 +77,10 @@ extern "C" {
 /// prior to calling the hotline constructor bound to JS by wasm-bindgen
 /// 
 /// # Args
-/// `vals` `&`[HotlinePosition] slice of hotline positions with values
+/// vals: slice of hotline positions with values.
 /// 
 /// # Returns
-/// [Array] JS Array of objects containing hotline positions and values
+/// JS Array of objects containing hotline positions and values.
 /// 
 /// # Examples
 /// 

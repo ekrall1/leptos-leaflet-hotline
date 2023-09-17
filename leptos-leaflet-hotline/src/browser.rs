@@ -35,23 +35,45 @@ extern "C" {
     static LINUX: bool;
 }
 
+///
+/// struct data type for [`Browser`]
+/// contains browser details
+/// see <`https://leafletjs.com/reference.html#browser`>
+///
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq)]
 pub struct Browser {
+    /// browser is chrome
     pub chrome: bool,
+    /// browser is safari
     pub safari: bool,
+    /// browser runs on a mobile device
     pub mobile: bool,
+    /// browser supports pointer events
     pub pointer: bool,
+    /// browser supports touch or pointer events
     pub touch: bool,
+    /// browser supports touch events
     pub touch_native: bool,
+    /// browser on a high-resolution screen or zoom is more than 100%
     pub retina: bool,
+    /// browser is running in a Mac or linux platform
     pub mac: bool,
+    /// browser is running in a linux platform
     pub linux: bool,
+    /// browser is edge
     pub edge: bool, // added
 }
 
+/// implement get details for browser
 #[wasm_bindgen]
 impl Browser {
+    ///
+    /// get browser details
+    ///
+    /// # Returns
+    /// [`Browser`]
+    ///
     pub fn get() -> Browser {
         let window = window().expect("Missing Window");
         let agent = window.navigator().user_agent().clone();

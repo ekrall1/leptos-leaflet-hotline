@@ -6,7 +6,9 @@ use wasm_bindgen::prelude::*;
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[non_exhaustive]
 pub struct FlatPosition {
+    /// latitude
     pub lat: f64,
+    /// longitude
     pub lng: f64,
 }
 
@@ -18,7 +20,9 @@ pub struct FlatPosition {
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[non_exhaustive]
 pub struct HotlinePosition {
+    /// lat, lng pair for the position
     pub latlng: FlatPosition,
+    /// used to hold the value for the position; used for visualization along path
     pub alt: f64,
 }
 
@@ -51,34 +55,76 @@ impl HotlinePosition {
 /// then, drop this once there is no need to have a separate latlng binding
 #[wasm_bindgen(js_namespace=L)]
 extern "C" {
+    /// LatLng type for hotlines (lat, lng, value)
     #[derive(Debug, Default, Clone)]
     pub type LatLng;
 
+    /// construct a new hotline [`LatLng`]
+    ///
+    /// # Returns
+    /// [`LatLng`]
+    ///
     #[wasm_bindgen(constructor, js_name = LatLng)]
     pub fn new(lat: f64, lng: f64, alt: f64) -> LatLng;
 
+    ///
+    /// get hotline position latitude
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, getter)]
     pub fn lat(this: &LatLng) -> f64;
 
+    ///
+    /// get hotline position longitude
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, getter)]
     pub fn lng(this: &LatLng) -> f64;
 
+    ///
+    /// get hotline position value
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, getter)]
     pub fn alt(this: &LatLng) -> f64;
 
+    ///
+    /// set hotline position latitude
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_lat(this: &LatLng, value: f64) -> f64;
 
+    ///
+    /// set hotline position longitude
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_lng(this: &LatLng, value: f64) -> f64;
 
+    ///
+    /// set hotline position value
+    ///
+    /// # Returns
+    /// [`f64`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_alt(this: &LatLng, value: f64) -> f64;
 }
 
 /// Creates a JS Array of objects of type ```{lat: number, lng: number, alt: number}``` \
 /// for passing to the JS leaflet-hotline code through wasm bindings.  This
-/// must be used to convert a slice of [HotlinePosition] values to JS Array,
+/// must be used to convert a slice of [`HotlinePosition`] values to JS Array,
 /// prior to calling the hotline constructor bound to JS by wasm-bindgen
 ///
 /// # Args

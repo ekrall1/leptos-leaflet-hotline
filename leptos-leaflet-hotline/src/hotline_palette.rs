@@ -1,3 +1,4 @@
+//! module for hotline palette data structure and functions
 use std::collections::HashMap;
 
 /// the default color palette used
@@ -12,13 +13,26 @@ const DEFAULT_PALETTE_VALUES: &[(&str, f64)] = &[
     ("red", 1.0),
 ];
 
+///
+/// struct data type for hotline palette
+///
+/// # Fields
+/// * `palette` [`HashMap<String, f64>`] mapping of colors to breakpoints
+///
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
 pub struct HotlinePalette {
     pub palette: HashMap<String, f64>,
 }
 
+/// implement constructor for [`HotlinePalette`]
 impl HotlinePalette {
+    ///
+    /// construct a new [`HotlinePalette`]
+    ///
+    /// # Returns
+    /// [`HotlinePalette`]
+    ///
     #[must_use]
     #[inline]
     pub fn new(palette: &[(&str, f64)]) -> Self {
@@ -34,13 +48,30 @@ impl HotlinePalette {
     }
 }
 
+/// implement default for [`HotlinePalette`]
 impl Default for HotlinePalette {
+    ///
+    /// create new [`HotlinePalette`] with default options
+    ///
+    /// # Returns
+    /// [`HotlinePalette`]
+    ///
     #[inline]
     fn default() -> Self {
         Self::new(DEFAULT_PALETTE_VALUES)
     }
 }
 
+///
+/// makes a new hotline palette
+/// Given a slice of (color: [`&str`], breakpoint: [`f64`]) tuples, create a [`HotlinePalette`]
+///
+/// # Arguments
+/// * `palette` - slice of ([`&str`], [`f64`]) tuples for mapping colors to breakpoints
+///
+/// # Returns
+/// [`HotlinePalette`]
+///
 #[must_use]
 #[inline]
 pub fn make_hotline_palette(palette: &[(&str, f64)]) -> HotlinePalette {

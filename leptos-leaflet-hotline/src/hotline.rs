@@ -1,6 +1,7 @@
+//! module for hotline wasm JS bindings, structs and functions
 #[path = "./hotline_palette.rs"]
 pub mod hotline_palette;
-use hotline_palette::*;
+use hotline_palette::HotlinePalette;
 #[path = "./hotline_position.rs"]
 pub mod hotline_position;
 
@@ -14,41 +15,92 @@ use leptos_leaflet::leaflet as L;
 #[wasm_bindgen]
 extern "C" {
 
+    /// struct for binding to leaflet-hotline JS Object containing hotline options
     #[wasm_bindgen(extends = L::PolylineOptions)]
     #[derive(Debug, Clone, PartialEq)]
     pub type HotlineOptions;
 
+    /// set the hotline palette
+    ///
+    /// # Returns
+    /// [`HotlineOptions`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_palette(this: &HotlineOptions, palette: &JsValue) -> HotlineOptions;
 
+    /// set the hotline outline color
+    ///
+    /// # Returns
+    /// [`HotlineOptions`]
+    ///
     #[wasm_bindgen(method, setter, js_name = "outlineColor")]
     pub fn set_outline_color(this: &HotlineOptions, color: &JsValue) -> HotlineOptions;
 
+    /// set the hotline max breakpoint threshold
+    ///
+    /// # Returns
+    /// [`HotlineOptions`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_max(this: &HotlineOptions, max: &JsValue) -> HotlineOptions;
 
+    /// set the hotline min breakpoint threshold
+    ///
+    /// # Returns
+    /// [`HotlineOptions`]
+    ///
     #[wasm_bindgen(method, setter)]
     pub fn set_min(this: &HotlineOptions, min: &JsValue) -> HotlineOptions;
 
+    /// struct for binding to leaflet-hotline JS L::Hotline class
+    ///
     #[wasm_bindgen(extends = L::Polyline)]
     #[derive(Debug, Clone)]
     pub type Hotline;
 
+    /// construct a new [`Hotline`]
+    ///
+    /// # Returns
+    /// [`Hotline`]
+    ///
     #[wasm_bindgen(constructor, js_namespace=L)]
     pub fn new(hotline_data: &Array, opts: &JsValue) -> Hotline;
 
+    /// [`Hotline`] click tolerance
+    ///
+    /// # Returns
+    /// [`Object`]
+    ///
     #[wasm_bindgen(method, js_name = "_clickTolerance")]
     pub fn _click_tolerance(this: &Hotline) -> Object;
 
+    /// get lat, lng bounds for [`Hotline`]
+    ///
+    /// # Returns
+    /// [`Object`]
+    ///
     #[wasm_bindgen(method, js_name = "getBounds")]
     pub fn get_bounds(this: &Hotline) -> Object;
 
+    /// set a style property for [`Hotline`]
+    ///
+    /// # Returns
+    /// [`Object`]
+    ///
     #[wasm_bindgen(method, js_name = "setStyle")]
     pub fn set_style(this: &Hotline, style: &Object) -> Object;
 
 }
 
+///
+/// implement constructor and conversions of properties to [`JsValue`] for [`HotlineOptions`]
 impl HotlineOptions {
+    ///
+    /// construct new [`HotlineOptions`]
+    ///
+    /// # Returns
+    /// [`HotlineOptions`]
+    ///
     #[must_use]
     #[inline]
     pub fn new(
@@ -77,6 +129,12 @@ impl HotlineOptions {
         opts
     }
 
+    ///
+    /// convert [`HotlinePalette`] to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline palette information (maps breakpoint -> color for JS binding)
+    ///
     #[must_use]
     #[inline]
     pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
@@ -91,6 +149,12 @@ impl HotlineOptions {
         JsCast::unchecked_into(palette_opts)
     }
 
+    ///
+    /// Converts hotline outline color to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline outline color information
+    ///
     #[must_use]
     #[inline]
     pub fn outline_color_to_js(outline_color: &Option<MaybeSignal<String>>) -> JsValue {
@@ -100,6 +164,12 @@ impl HotlineOptions {
         JsCast::unchecked_into(JsString::from(js_outline_color))
     }
 
+    ///
+    /// Converts hotline max breakpoint threshold to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline max breakpoint threshold information
+    ///
     #[must_use]
     #[inline]
     pub fn max_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
@@ -109,6 +179,12 @@ impl HotlineOptions {
         JsValue::from_f64(js_val)
     }
 
+    ///
+    /// Converts hotline min breakpoint threshold to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline min breakpoint threshold information
+    ///
     #[must_use]
     #[inline]
     pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
@@ -119,6 +195,10 @@ impl HotlineOptions {
     }
 }
 
+///
+/// implement functions to set outline color, set max breakpoint threshold,
+/// and set min breakpoint threshold for [`Hotline`]
+///
 #[wasm_bindgen]
 impl Hotline {
     /// set a new outline color for the hotline after it has already been created; \
@@ -131,6 +211,8 @@ impl Hotline {
         // Call the set_style method with the created object.
         self.set_style(&obj);
     }
+
+    /// set the max breakpoint threshold for [`Hotline`]
     #[inline]
     pub fn set_max_val(&self, max: f64) {
         let obj = js_sys::Object::new();
@@ -138,6 +220,8 @@ impl Hotline {
 
         self.set_style(&obj);
     }
+
+    /// set the min breakpoint threshold for [`Hotline`]
     #[inline]
     pub fn set_min_val(&self, min: f64) {
         let obj = js_sys::Object::new();
@@ -147,6 +231,7 @@ impl Hotline {
     }
 }
 
+/// implement [`From<Hotline>`] for [`leptos_leaflet::leaflet::Layer`]
 /// similar to the impl used for `From<Polyline>` for Layer in leptos-leaflet
 /// see: <https://github.com/headless-studio/leptos-leaflet/>
 /// specifically: <https://github.com/headless-studio/leptos-leaflet/blob/main/leaflet/src/shapes/polyline.rs/>

@@ -2,7 +2,7 @@
 use leptos::{component, create_effect, create_signal, log, tracing, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
-use leptos_leaflet_hotline::{HotPolyline, make_hotline_palette, hotline_positions};
+use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};
 
 use leptos_meta::{provide_meta_context, Script, Stylesheet, Title};
 use leptos_router::{Route, Router, Routes};
@@ -65,8 +65,8 @@ fn HomePage() -> impl IntoView {
                 <strong>{"A tooltip"}</strong>
             </Tooltip>
             <HotPolyline
-                positions=hotline_positions(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
-                palette=make_hotline_palette(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
+                positions=HotlinePositionVec::new(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
+                palette=HotlinePalette::new(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
                 outline_color="#5a5a5a"
                 max=1.0
                 min=0.0

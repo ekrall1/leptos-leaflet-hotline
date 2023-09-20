@@ -57,27 +57,31 @@ fn add_hotline_to_map(
 ///
 /// Basic usage:
 /// ```no_run
-/// fn my_map() -> impl leptos::IntoView {
+/// use leptos_leaflet::{MapContainer};
+/// use leptos::{view, IntoView};
+/// use leptos_leaflet_hotline::{HotPolyline};
+///
+/// fn my_map() -> impl IntoView {
 ///     let (pos, set_pos) = leptos::create_signal(leptos_leaflet::Position::new(90.000, 135.000));
 ///     let (map, set_map) = leptos::create_signal(None::<leptos_leaflet::leaflet::Map>);
 ///
-///     leptos::view! {
-///         <leptos_leaflet::MapContainer style="height: 100vh" center=leptos_leaflet::Position::new(90.000, 135.000) zoom=17.0 set_view=false map=set_map locate=false watch=true events>
-///             <leptos_leaflet_hotline::HotPolyline
-///                 positions=leptos_leaflet_hotline::hotline_positions(&[(90.000, 135.000, 0), (90.010, 135.010, 100)])
-///                 palette=leptos_leaflet_hotline::make_hotline_palette(&[("green", 0.0), ("red", 1.0)])
+///     view! {
+///         <MapContainer style="height: 100vh" center=leptos_leaflet::Position::new(90.000, 135.000) zoom=17.0 set_view=false map=set_map locate=false watch=true>
+///             <HotPolyline
+///                 positions=leptos_leaflet_hotline::HotlinePositionVec::new(&[(90.000, 135.000, 0.0), (90.010, 135.010, 100.0)])
+///                 palette=leptos_leaflet_hotline::HotlinePalette::new(&[("green", 0.0), ("red", 1.0)])
 ///                 outline_color="white"
 ///                 max=1.0
 ///                 min=0.0
 ///             />
-///         </leptos_leaflet::MapContainer>
+///         </MapContainer>
 ///     }
 /// }
 /// ```
 ///
 #[component(transparent)]
 pub fn HotPolyline(
-    #[prop(into)] positions: MaybeSignal<Vec<HotlinePosition>>,
+    #[prop(into)] positions: MaybeSignal<HotlinePositionVec>,
     #[prop(into)] palette: MaybeSignal<HotlinePalette>,
     #[prop(optional, into)] outline_color: Option<MaybeSignal<String>>,
     #[prop(optional, into)] max: Option<MaybeSignal<f64>>,

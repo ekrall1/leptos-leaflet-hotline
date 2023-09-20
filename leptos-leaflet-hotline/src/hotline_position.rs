@@ -26,6 +26,35 @@ pub struct HotlinePosition {
     pub alt: f64,
 }
 
+/// Struct for vector of leaflet hotline positions
+#[derive(Debug, Default, Clone, PartialEq)]
+#[non_exhaustive]
+pub struct HotlinePositionVec {
+    /// vec of positions
+    pub positions: Vec<HotlinePosition>,
+}
+
+impl HotlinePositionVec {
+    #[must_use]
+    #[inline]
+    pub fn new(arr: &[(f64, f64, f64)]) -> Self {
+        let mut position_vec: Vec<HotlinePosition> = vec![];
+
+        let max_val = arr
+            .iter()
+            .map(|val| val.2)
+            .fold(f64::NEG_INFINITY, f64::max);
+
+        for &elem in arr {
+            position_vec.push(HotlinePosition::new(elem.0, elem.1, elem.2 / max_val));
+        }
+
+        Self {
+            positions: position_vec,
+        }
+    }
+}
+
 impl HotlinePosition {
     #[must_use]
     #[inline]
@@ -138,52 +167,18 @@ extern "C" {
 /// Basic usage:
 /// ```no_run
 /// let positions = &[(40.293, -105.618, 25.0), (40.2928, -105.6190, 0.0)];
-/// let position_vec = leptos_leaflet_hotline::hotline_positions(positions);
+/// let position_vec = leptos_leaflet_hotline::HotlinePositionVec::new(positions);
 /// let arr = leptos_leaflet_hotline::to_hotline_lat_lng_array(&position_vec);
 /// assert!(arr.is_array())
 /// ```
 ///
 #[must_use]
 #[inline]
-pub fn to_hotline_lat_lng_array(vals: &[HotlinePosition]) -> Array {
+pub fn to_hotline_lat_lng_array(vals: &HotlinePositionVec) -> Array {
     let array = Array::new();
-    for val in vals.iter().copied() {
+    for val in vals.positions.iter().copied() {
         let new_latlng = LatLng::new(val.get_lat(), val.get_lng(), val.alt);
         array.push(&new_latlng);
     }
     array
-}
-
-/// Creates a vector of type [`Vec<HotlinePosition>`] from a slice of ([f64], [f64], [f64]) tuples.
-/// Used for converting input args to the hot polyline RSX components into a [Vec].
-///
-/// # Args
-/// `positions`: slice of `lat`, `lng`, `value` tuples.
-///
-/// # Returns
-/// [`Vec<HotlinePosition>`] vector.
-///
-/// # Examples
-///
-/// Basic usage:
-/// ```rust
-/// let positions = &[(40.293, -105.618, 25.0), (40.2928, -105.6190, 0.0)];
-/// let position_vec = leptos_leaflet_hotline::hotline_positions(positions);
-/// assert_eq!(position_vec.len(), 2);
-/// ```
-///
-#[inline]
-pub fn hotline_positions(positions: &[(f64, f64, f64)]) -> Vec<HotlinePosition> {
-    let max_val = positions
-        .iter()
-        .map(|val| val.2)
-        .fold(f64::NEG_INFINITY, f64::max);
-    let normed: Vec<(f64, f64, f64)> = positions
-        .iter()
-        .map(|&(lat, lng, val)| (lat, lng, val / max_val))
-        .collect();
-    normed
-        .iter()
-        .map(|&position| HotlinePosition::new(position.0, position.1, position.2))
-        .collect()
 }

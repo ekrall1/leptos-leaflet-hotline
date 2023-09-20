@@ -61,19 +61,3 @@ impl Default for HotlinePalette {
         Self::new(DEFAULT_PALETTE_VALUES)
     }
 }
-
-///
-/// makes a new hotline palette
-/// Given a slice of (color: [`&str`], breakpoint: [`f64`]) tuples, create a [`HotlinePalette`]
-///
-/// # Arguments
-/// * `palette` - slice of ([`&str`], [`f64`]) tuples for mapping colors to breakpoints
-///
-/// # Returns
-/// [`HotlinePalette`]
-///
-#[must_use]
-#[inline]
-pub fn make_hotline_palette(palette: &[(&str, f64)]) -> HotlinePalette {
-    HotlinePalette::new(palette)
-}

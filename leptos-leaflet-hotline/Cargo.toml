@@ -14,7 +14,7 @@ categories = ["development", "development::plugins", "interactive-maps::plugins"
 [dependencies]
 leptos = {version = "0.5.0-beta", default-features=false}
 leptos_meta = {version = "0.5.0-beta", default-features=false }
-leptos-leaflet = { git="https://github.com/headless-studio/leptos-leaflet", branch="main", default-features = false }
+leptos-leaflet = { git="https://github.com/headless-studio/leptos-leaflet", rev="e5e3787", default-features = false }
 getrandom = { version = "0.2", features = ["js"] }
 js-sys = "0.3"
 paste = "1.0"

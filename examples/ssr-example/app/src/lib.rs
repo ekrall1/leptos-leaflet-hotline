@@ -1,5 +1,5 @@
 //! Example using leptos-leaflet-hotline [HotPolyline] component
-use leptos::{component, create_effect, create_signal, log, tracing, view, IntoView, SignalGet};
+use leptos::{component, create_effect, create_signal, logging::*, tracing, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
 use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};

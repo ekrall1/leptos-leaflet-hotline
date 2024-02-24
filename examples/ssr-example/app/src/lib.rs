@@ -1,5 +1,5 @@
 //! Example using leptos-leaflet-hotline [HotPolyline] component
-use leptos::{component, create_effect, create_signal, logging::*, tracing, view, IntoView, SignalGet};
+use leptos::{component, create_effect, create_signal, logging::*, view, IntoView, SignalGet};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::{MapContainer, MapEvents, Position, TileLayer, Tooltip};
 use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};
@@ -48,12 +48,12 @@ fn HomePage() -> impl IntoView {
 
     create_effect(move |_| {
         if let Some(map) = map.get() {
-            log!("Map context {:?}", map.getZoom());
+            log!("Map context {:?}", map.get_zoom());
         }
     });
 
     let location_found = move |loc: L::LocationEvent| {
-        log!("Hi from {:?}", loc.latlng());
+        log!("Hi from {:?}", loc.lat_lng());
     };
 
     let events = MapEvents::new().location_found(location_found);

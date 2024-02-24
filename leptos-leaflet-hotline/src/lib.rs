@@ -4,7 +4,7 @@ pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptio
 
 #[allow(unused_imports)]
 use leptos::{
-    component, create_effect, logging::*, store_value, tracing, use_context, Children, IntoView,
+    component, create_effect, logging::*, store_value, use_context, Children, IntoView,
     MaybeSignal, SignalGetUntracked, StoredValue,
 };
 use leptos_leaflet::leaflet as L;
@@ -28,7 +28,7 @@ fn add_hotline_to_map(
     let map: Result<L::Map, &str> = map_context.ok_or("Expected to create map from context.");
     match map {
         Ok(map_ref) => {
-            hotline.addTo(&map_ref);
+            hotline.add_to(&map_ref);
             update_overlay_context(&hotline);
             overlay.set_value(Some(hotline));
         }

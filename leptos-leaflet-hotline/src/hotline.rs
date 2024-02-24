@@ -5,7 +5,6 @@ use hotline_palette::HotlinePalette;
 #[path = "./hotline_position.rs"]
 pub mod hotline_position;
 
-use core::mem::drop;
 use js_sys::{Array, JsString, Object, Reflect};
 use wasm_bindgen::prelude::*;
 

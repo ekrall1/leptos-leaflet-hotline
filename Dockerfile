@@ -38,4 +38,4 @@ EXPOSE 3001 3001
 
 USER ${USERNAME}
 
-CMD ["/bin/bash", "-c", "cargo leptos watch"]
+CMD ["/bin/bash", "-c", "cargo update -p time && cargo leptos watch"]

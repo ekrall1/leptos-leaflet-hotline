@@ -33,3 +33,7 @@ web-sys = { version = "0.3", features = [
     "Navigator"
 ] }
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3.49"
+wasm-bindgen-cli = "0.2.99"
+

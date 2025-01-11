@@ -172,9 +172,7 @@ impl HotlineOptions {
     #[must_use]
     #[inline]
     pub fn max_to_js(val: &Option<Signal<f64>>) -> JsValue {
-        let js_val = val
-            .as_ref()
-            .map_or(1.0_f64, GetUntracked::get_untracked);
+        let js_val = val.as_ref().map_or(1.0_f64, GetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 
@@ -187,9 +185,7 @@ impl HotlineOptions {
     #[must_use]
     #[inline]
     pub fn min_to_js(val: &Option<Signal<f64>>) -> JsValue {
-        let js_val = val
-            .as_ref()
-            .map_or(0.0_f64, GetUntracked::get_untracked);
+        let js_val = val.as_ref().map_or(0.0_f64, GetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 }

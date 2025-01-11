@@ -3,11 +3,14 @@ pub mod hotline;
 pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptions};
 
 use leptos::children::Children;
-use leptos::prelude::{GetUntracked, LocalStorage, Signal, StoredValue, Effect, SetValue, use_context};
-use leptos::{
-    component, logging::*, IntoView};
+use leptos::prelude::{
+    use_context, Effect, GetUntracked, LocalStorage, SetValue, Signal, StoredValue,
+};
+use leptos::{component, logging::*, IntoView};
 use leptos_leaflet::leaflet as L;
-use leptos_leaflet::prelude::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
+use leptos_leaflet::prelude::{
+    extend_context_with_overlay, update_overlay_context, LeafletMapContext,
+};
 
 /// adds hotline instance to a leptos-leaflet map context
 /// # Arguments
@@ -114,3 +117,4 @@ pub fn HotPolyline(
 
     children.map(|child| child())
 }
+

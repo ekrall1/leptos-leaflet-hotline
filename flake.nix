@@ -24,6 +24,8 @@
             clang
             llvmPackages.bintools
             rustup
+            wasm-pack
+            chromedriver
           ];
 
         shellHook = ''

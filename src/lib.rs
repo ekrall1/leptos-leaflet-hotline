@@ -2,13 +2,12 @@
 pub mod hotline;
 pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptions};
 
-#[allow(unused_imports)]
+use leptos::children::Children;
+use leptos::prelude::{GetUntracked, LocalStorage, Signal, StoredValue, Effect, SetValue, use_context};
 use leptos::{
-    component, create_effect, logging::*, store_value, use_context, Children, IntoView,
-    MaybeSignal, SignalGetUntracked, StoredValue,
-};
+    component, logging::*, IntoView};
 use leptos_leaflet::leaflet as L;
-use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
+use leptos_leaflet::prelude::{extend_context_with_overlay, update_overlay_context, LeafletMapContext};
 
 /// adds hotline instance to a leptos-leaflet map context
 /// # Arguments
@@ -23,7 +22,7 @@ use leptos_leaflet::{extend_context_with_overlay, update_overlay_context, Leafle
 fn add_hotline_to_map(
     map_context: Option<L::Map>,
     hotline: Hotline,
-    overlay: StoredValue<Option<Hotline>>,
+    overlay: StoredValue<Option<Hotline>, LocalStorage>,
 ) -> Result<(), ()> {
     let map: Result<L::Map, &str> = map_context.ok_or("Expected to create map from context.");
     match map {
@@ -81,18 +80,18 @@ fn add_hotline_to_map(
 ///
 #[component(transparent)]
 pub fn HotPolyline(
-    #[prop(into)] positions: MaybeSignal<HotlinePositionVec>,
-    #[prop(into)] palette: MaybeSignal<HotlinePalette>,
-    #[prop(optional, into)] outline_color: Option<MaybeSignal<String>>,
-    #[prop(optional, into)] max: Option<MaybeSignal<f64>>,
-    #[prop(optional, into)] min: Option<MaybeSignal<f64>>,
+    #[prop(into)] positions: Signal<HotlinePositionVec>,
+    #[prop(into)] palette: Signal<HotlinePalette>,
+    #[prop(optional, into)] outline_color: Option<Signal<String>>,
+    #[prop(optional, into)] max: Option<Signal<f64>>,
+    #[prop(optional, into)] min: Option<Signal<f64>>,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     extend_context_with_overlay();
-    let overlay = store_value(None::<Hotline>);
+    let overlay = StoredValue::new_with_storage(None::<Hotline>);
     let _positions_for_effect = positions.clone();
 
-    create_effect(move |_| -> Result<(), &str> {
+    Effect::new(move |_| -> Result<(), &str> {
         let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
         let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
 

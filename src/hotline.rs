@@ -8,7 +8,7 @@ pub mod hotline_position;
 use js_sys::{Array, JsString, Object, Reflect};
 use wasm_bindgen::prelude::*;
 
-use leptos::{MaybeSignal, SignalGetUntracked};
+use leptos::prelude::{GetUntracked, Signal};
 use leptos_leaflet::leaflet as L;
 
 #[wasm_bindgen]
@@ -104,9 +104,9 @@ impl HotlineOptions {
     #[inline]
     pub fn new(
         palette: &HotlinePalette,
-        outline_color: &Option<MaybeSignal<String>>,
-        max: &Option<MaybeSignal<f64>>,
-        min: &Option<MaybeSignal<f64>>,
+        outline_color: &Option<Signal<String>>,
+        max: &Option<Signal<f64>>,
+        min: &Option<Signal<f64>>,
     ) -> Self {
         let palette_len = palette.palette.len();
 
@@ -156,10 +156,10 @@ impl HotlineOptions {
     ///
     #[must_use]
     #[inline]
-    pub fn outline_color_to_js(outline_color: &Option<MaybeSignal<String>>) -> JsValue {
+    pub fn outline_color_to_js(outline_color: &Option<Signal<String>>) -> JsValue {
         let js_outline_color = outline_color
             .as_ref()
-            .map_or_else(|| "black".to_owned(), SignalGetUntracked::get_untracked);
+            .map_or_else(|| "black".to_owned(), GetUntracked::get_untracked);
         JsCast::unchecked_into(JsString::from(js_outline_color))
     }
 
@@ -171,10 +171,10 @@ impl HotlineOptions {
     ///
     #[must_use]
     #[inline]
-    pub fn max_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
+    pub fn max_to_js(val: &Option<Signal<f64>>) -> JsValue {
         let js_val = val
             .as_ref()
-            .map_or(1.0_f64, SignalGetUntracked::get_untracked);
+            .map_or(1.0_f64, GetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 
@@ -186,10 +186,10 @@ impl HotlineOptions {
     ///
     #[must_use]
     #[inline]
-    pub fn min_to_js(val: &Option<MaybeSignal<f64>>) -> JsValue {
+    pub fn min_to_js(val: &Option<Signal<f64>>) -> JsValue {
         let js_val = val
             .as_ref()
-            .map_or(0.0_f64, SignalGetUntracked::get_untracked);
+            .map_or(0.0_f64, GetUntracked::get_untracked);
         JsValue::from_f64(js_val)
     }
 }

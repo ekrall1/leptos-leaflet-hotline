@@ -4,7 +4,7 @@ pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptio
 
 use leptos::children::Children;
 use leptos::prelude::{
-    use_context, Component, Effect, GetUntracked, LocalStorage, SetValue, Signal, View, StoredValue,
+    use_context, Effect, GetUntracked, LocalStorage, SetValue, Signal, RenderHtml, StoredValue,
 };
 use leptos::{component, logging::*, view, IntoView};
 use leptos_leaflet::leaflet as L;
@@ -81,7 +81,7 @@ fn add_hotline_to_map(
 /// }
 /// ```
 ///
-#[component(transparent)]
+#[component]
 pub fn HotPolyline(
     #[prop(into)] positions: Signal<HotlinePositionVec>,
     #[prop(into)] palette: Signal<HotlinePalette>,
@@ -115,7 +115,7 @@ pub fn HotPolyline(
             Ok(())
         });
     
-        children.map(|child| child())
+        children.map( move |child| child())
 }
 
 

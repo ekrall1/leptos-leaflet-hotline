@@ -4,9 +4,9 @@ pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptio
 
 use leptos::children::Children;
 use leptos::prelude::{
-    use_context, Effect, GetUntracked, LocalStorage, SetValue, Signal, StoredValue,
+    use_context, Component, Effect, GetUntracked, LocalStorage, SetValue, Signal, View, StoredValue,
 };
-use leptos::{component, logging::*, IntoView};
+use leptos::{component, logging::*, view, IntoView};
 use leptos_leaflet::leaflet as L;
 use leptos_leaflet::prelude::{
     extend_context_with_overlay, update_overlay_context, LeafletMapContext,
@@ -37,24 +37,6 @@ fn add_hotline_to_map(
         Err(_err) => return Err(()),
     };
     Ok(())
-}
-
-pub struct HotPolylineProps {
-    pub positions: Signal<HotlinePositionVec>,
-    pub palette: Signal<HotlinePalette>,
-    pub outline_color: Option<Signal<String>>,
-    pub max: Option<Signal<f64>>,
-    pub min: Option<Signal<f64>>,
-    pub children: Option<Children>,
-}
-
-pub struct HotPolylineComponent {
-    pub props: HotPolylineProps
-}
-impl HotPolylineComponent {
-    pub fn new(props: HotPolylineProps) -> Self {
-        HotPolylineComponent { props }
-    }
 }
 
 ///
@@ -100,34 +82,40 @@ impl HotPolylineComponent {
 /// ```
 ///
 #[component(transparent)]
-pub fn HotPolylineComponent(
-    props: HotPolylineProps
+pub fn HotPolyline(
+    #[prop(into)] positions: Signal<HotlinePositionVec>,
+    #[prop(into)] palette: Signal<HotlinePalette>,
+    #[prop(optional, into)] outline_color: Option<Signal<String>>,
+    #[prop(optional, into)] max: Option<Signal<f64>>,
+    #[prop(optional, into)] min: Option<Signal<f64>>,
+    #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
-    extend_context_with_overlay();
-    let overlay = StoredValue::new_with_storage(None::<Hotline>);
-    let _positions_for_effect = props.positions.clone();
-
-    Effect::new(move |_| -> Result<(), &str> {
-        let lat_lngs = to_hotline_lat_lng_array(&props.positions.get_untracked());
-        let opts = HotlineOptions::new(&props.palette.get_untracked(), &props.outline_color, &props.max, &props.min);
-
-        let hotline = Hotline::new(&lat_lngs, &opts);
-        let map_context = use_context::<LeafletMapContext>();
-        let context = map_context.ok_or("Expected map context.");
-
-        match context {
-            Ok(ctx) => {
-                let map_ctx = ctx.map();
-                let res = add_hotline_to_map(map_ctx, hotline, overlay);
-                if res == Err(()) {
-                    log!("Expected to add hotline to the map.");
+        extend_context_with_overlay();
+        let overlay = StoredValue::new_with_storage(None::<Hotline>);
+        let _positions_for_effect = positions.clone();
+    
+        Effect::new(move |_| -> Result<(), &str> {
+            let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
+            let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
+    
+            let hotline = Hotline::new(&lat_lngs, &opts);
+            let map_context = use_context::<LeafletMapContext>();
+            let context = map_context.ok_or("Expected map context.");
+    
+            match context {
+                Ok(ctx) => {
+                    let map_ctx = ctx.map();
+                    let res = add_hotline_to_map(map_ctx, hotline, overlay);
+                    if res == Err(()) {
+                        log!("Expected to add hotline to the map.");
+                    }
                 }
-            }
-            Err(err) => return Err(err),
-        };
-        Ok(())
-    });
-
-    props.children.map(|child| child())
+                Err(err) => return Err(err),
+            };
+            Ok(())
+        });
+    
+        children.map(|child| child())
 }
+
 

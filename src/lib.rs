@@ -39,6 +39,24 @@ fn add_hotline_to_map(
     Ok(())
 }
 
+pub struct HotPolylineProps {
+    pub positions: Signal<HotlinePositionVec>,
+    pub palette: Signal<HotlinePalette>,
+    pub outline_color: Option<Signal<String>>,
+    pub max: Option<Signal<f64>>,
+    pub min: Option<Signal<f64>>,
+    pub children: Option<Children>,
+}
+
+pub struct HotPolylineComponent {
+    pub props: HotPolylineProps
+}
+impl HotPolylineComponent {
+    pub fn new(props: HotPolylineProps) -> Self {
+        HotPolylineComponent { props }
+    }
+}
+
 ///
 /// Creates hot polyline functional component added to a leptos leaflet map container
 ///
@@ -82,21 +100,16 @@ fn add_hotline_to_map(
 /// ```
 ///
 #[component(transparent)]
-pub fn HotPolyline(
-    #[prop(into)] positions: Signal<HotlinePositionVec>,
-    #[prop(into)] palette: Signal<HotlinePalette>,
-    #[prop(optional, into)] outline_color: Option<Signal<String>>,
-    #[prop(optional, into)] max: Option<Signal<f64>>,
-    #[prop(optional, into)] min: Option<Signal<f64>>,
-    #[prop(optional)] children: Option<Children>,
+pub fn HotPolylineComponent(
+    props: HotPolylineProps
 ) -> impl IntoView {
     extend_context_with_overlay();
     let overlay = StoredValue::new_with_storage(None::<Hotline>);
-    let _positions_for_effect = positions.clone();
+    let _positions_for_effect = props.positions.clone();
 
     Effect::new(move |_| -> Result<(), &str> {
-        let lat_lngs = to_hotline_lat_lng_array(&positions.get_untracked());
-        let opts = HotlineOptions::new(&palette.get_untracked(), &outline_color, &max, &min);
+        let lat_lngs = to_hotline_lat_lng_array(&props.positions.get_untracked());
+        let opts = HotlineOptions::new(&props.palette.get_untracked(), &props.outline_color, &props.max, &props.min);
 
         let hotline = Hotline::new(&lat_lngs, &opts);
         let map_context = use_context::<LeafletMapContext>();
@@ -115,6 +128,6 @@ pub fn HotPolyline(
         Ok(())
     });
 
-    children.map(|child| child())
+    props.children.map(|child| child())
 }
 

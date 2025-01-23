@@ -1,13 +1,14 @@
 # leptos-leaflet-hotline
 This is a personal project for creating polylines with color gradients using Rust, Leptos and Leaflet.
 
-# Note
+# Notes
 This project is primarily based the following other projects. 
 - The existing hotline extension for leaflet-js: [iosphere/Leaflet.hotline](https://github.com/iosphere/Leaflet.hotline/blob/master/LICENSE), Bindings are created using `wasm-bindgen`.
 
 - The leptos-leaflet repository: [leptos-leaflet](https://github.com/headless-studio/leptos-leaflet/blob/main/LICENSE).  This project adapts the structure from that project to create hotline components in leptos-leaflet.  
 
 - like the above projects, this is also based on leaflet: [leaflet](https://github.com/Leaflet/Leaflet/tree/6ee30226c8270d8bdaec0a14c4018f244c7f5e59)
+
 
 ## Usage
 
@@ -21,6 +22,23 @@ e.g.,
     positions=HotlinePositionVec::new(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
     palette=HotlinePalette::new(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
 />
+```
+
+## Development
+
+Start a development shell (NixOS)
+```
+nix develop
+```
+
+Run tests (from the repository's root directory) (on Linux)
+```
+wasm-pack test --headless --firefox ./leptos-leaflet-hotline
+```
+
+Build the project
+```
+cargo build
 ```
 
 ## Examples

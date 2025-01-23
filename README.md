@@ -31,7 +31,7 @@ Start a development shell (NixOS)
 nix develop
 ```
 
-Run tests (from the repository's root directory) (on Linux)
+Run tests (from the repository's root directory)
 ```
 wasm-pack test --headless --firefox ./leptos-leaflet-hotline
 ```

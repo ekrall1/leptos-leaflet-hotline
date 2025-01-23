@@ -3,6 +3,16 @@ body {
 	text-align: center;
 }
 
+.map-parent {
+  position: relative;
+}
+
+.map-container {
+  position: absolute;
+  height: 99vh;
+  width: 99vw;
+}
+
 // Define variables for stroke properties
 $base-stroke-color: #0000CC;
 $base-stroke-width: 5px;

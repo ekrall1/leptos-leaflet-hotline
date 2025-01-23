@@ -1,47 +1,75 @@
-[workspace]
-members = ["app", "frontend", "server"]
+[package]
+name = "leptos-leaflet-hotline-ssr"
+edition = "2021"
+version = "0.1.0"
+authors = ["Eric Krall"]
+readme = "README.md"
+license = "MIT"
 
-# need to be applied only to wasm build
-[profile.release]
-codegen-units = 1
-lto = true
-opt-level = 'z'
+[lib]
+crate-type = ["cdylib", "rlib"]
 
-[workspace.dependencies]
-leptos = {version = "0.6", default-features=false}
-leptos_meta = {version = "0.6", default-features=false }
-leptos_router = {version = "0.6", default-features=false }
-leptos_axum = {version = "0.6"  }
+[dependencies]
+leptos = {version = "0.7.3", default-features=false }
+leptos_meta = {version = "0.7.3", default-features=false }
+leptos_router = {version = "0.7.3", default-features=false }
+leptos-leaflet = {version = "0.9.1", default-features=false }
+leptos_axum = {version = "0.7.3", optional=true }
+leptos-use = {version = "0.15", optional=true, features=[]}
 
-axum = "0.7.4"
-cfg-if = "1.0.0"
-console_error_panic_hook = "0.1.7"
-console_log = "1.0.0"
-http = "1.0.0"
-log = "0.4.17"
-simple_logger = "4.1.0"
-thiserror = "1.0.40"
-tokio = { version = "1.36.0", features = ["full"] }
-tower = { version = "0.4.13", features = ["full"] }
-tower-http = { version = "0.5.2", features = ["full"] }
-wasm-bindgen = "=0.2.95"
-clap = { version = "4.4.0", features = ["derive"] }
-tracing = "0.1.37"
-tracing-subscriber = "0.3.17"
-leptos-leaflet = "0.7.0"
+axum = {version = "0.7", optional = true }
+console_error_panic_hook = "0.1"
+console_log = "1.0"
+tokio = { version = "1.36.0", features = [ "full" ], optional = true  }
+tower = { version = "0.4.13", optional=true }
+tower-http = { version = "0.5.2", features = ["fs"], optional=true }
+log = "0.4"
+simple_logger = "4.1"
+wasm-bindgen = "=0.2.100"
+tracing = {version = "0.1.37", optional = true }
+tracing-subscriber = {version = "0.3.17", optional = true }
 getrandom = "0.2"
-js-sys = "0.3.64"
-leptos-leaflet-hotline = { path="../../leptos-leaflet-hotline" }
-cargo-leptos = "0.2.7"
+leptos-leaflet-hotline = { path = "../../leptos-leaflet-hotline" }
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3.49"
+wasm-bindgen-cli = "0.2.100"
 
-# See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
+[features]
+hydrate = [
+    "leptos/hydrate",
+    "leptos-leaflet/hydrate",
+    "getrandom/js",
+]
+ssr = [
+    "dep:axum",
+    "dep:tokio",
+    "dep:tower",
+    "dep:tower-http",
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "dep:leptos_axum",
+    "leptos_router/ssr",
+    "leptos-leaflet/ssr",
+    "dep:tracing",
+    "dep:tracing-subscriber",
+    "leptos-use/ssr",
+    "leptos-use/axum",
+]
 
-# A leptos project defines which workspace members
-# that are used together frontend (lib) & server (bin)
-[[workspace.metadata.leptos]]
+[profile.release]
+panic = "abort"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+
+[package.metadata.cargo-all-features]
+denylist = ["axum", "tokio", "tower", "tower-http", "leptos_axum" ]
+skip_feature_sets = [["ssr", "hydrate"]]
+
+[package.metadata.leptos]
 # this name is used for the wasm, js and css file names
-name = "start-axum-workspace"
+name = "leptos-leaflet-hotline-ssr"
 
 # the package in the workspace that contains the server binary (binary crate)
 bin-package = "server"
@@ -89,7 +117,7 @@ env = "DEV"
 # The features to use when compiling the bin target
 #
 # Optional. Can be over-ridden with the command line parameter --bin-features
-bin-features = []
+bin-features = ["ssr"]
 
 # If the --no-default-features flag should be used when compiling the bin target
 #
@@ -99,7 +127,7 @@ bin-default-features = false
 # The features to use when compiling the lib target
 #
 # Optional. Can be over-ridden with the command line parameter --lib-features
-lib-features = []
+lib-features = ["hydrate"]
 
 # If the --no-default-features flag should be used when compiling the lib target
 #

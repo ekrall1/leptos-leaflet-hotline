@@ -1,0 +1,38 @@
+body {
+	font-family: sans-serif;
+	text-align: center;
+}
+
+.map-parent {
+  position: relative;
+}
+
+.map-container {
+  position: absolute;
+  height: 99vh;
+  width: 99vw;
+}
+
+// Define variables for stroke properties
+$base-stroke-color: #0000CC;
+$base-stroke-width: 5px;
+$max-stroke-width: 100px;
+$animation-duration: 2s;
+
+// Define animation keyframes
+@keyframes pulsate {
+  0%, 100% {
+    stroke-width: $base-stroke-width;
+    stroke: $base-stroke-color;
+  }
+  50% {
+    stroke-width: $max-stroke-width;
+    stroke: darken($base-stroke-color, 10%);
+  }
+}
+
+.mycircle {
+	stroke: $base-stroke-color;
+	stroke-width: $base-stroke-width;
+	animation: pulsate $animation-duration infinite;
+}

@@ -1,5 +1,5 @@
 # leptos-leaflet-hotline
-This is a personal project for creating polylines with color gradients using Rust, Leptos and Leaflet.  It is currently functional, but not all details have been implemented.  
+This is a personal project for creating polylines with color gradients using Rust, Leptos and Leaflet.
 
 # Note
 This project is primarily based the following other projects. 
@@ -8,16 +8,6 @@ This project is primarily based the following other projects.
 - The leptos-leaflet repository: [leptos-leaflet](https://github.com/headless-studio/leptos-leaflet/blob/main/LICENSE).  This project adapts the structure from that project to create hotline components in leptos-leaflet.  
 
 - like the above projects, this is also based on leaflet: [leaflet](https://github.com/Leaflet/Leaflet/tree/6ee30226c8270d8bdaec0a14c4018f244c7f5e59)
-
-
-## Project Structure
-```
-examples
-|_ssr-example (code to serve an example on localhost:3000 using Axum)
-leptos-leaflet-hotline
-|_src (source code for the project)
-```
-The exeample is set up using the Leptos Axum template and contains a README with additional description.
 
 ## Usage
 
@@ -32,6 +22,10 @@ e.g.,
     palette=HotlinePalette::new(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
 />
 ```
+
+## Examples
+
+The project includes an example that uses Axum and server-side rendering, *see* `./examples/ssr-example`
 
 ## Screenshots
 

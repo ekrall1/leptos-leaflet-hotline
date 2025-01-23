@@ -1,5 +1,5 @@
 {
-  description = "A flake for development in the leptos leaflet hotline project";
+  description = "A flake for building the leptos leaflet hotline project";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
@@ -21,6 +21,7 @@
       #   $ nix develop
       #
       devShells.default = pkgs.mkShell {
+
         buildInputs =
           with pkgs;
           [
@@ -33,6 +34,7 @@
             cacert
             cargo-make
             trunk
+            sass
             (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
               extensions = [ "rust-src" "rust-analyzer" ];
               targets = [ "wasm32-unknown-unknown" ];
@@ -40,7 +42,11 @@
           ];
 
         shellHook = ''
-          echo "Entering development shell"
+          rustup toolchain install nightly --allow-downgrade
+          rustup default nightly
+          rustup target add wasm32-unknown-unknown
+          cargo install cargo-generate cargo-leptos@0.2.24 wasm-pack
+          cargo leptos watch
         '';
       };
 

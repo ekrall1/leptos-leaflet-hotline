@@ -1,14 +1,12 @@
 //! module for hotline wasm JS bindings, structs and functions
 #[path = "./hotline_palette.rs"]
 pub mod hotline_palette;
-use hotline_palette::HotlinePalette;
 #[path = "./hotline_position.rs"]
 pub mod hotline_position;
 
-use js_sys::{Array, JsString, Object, Reflect};
+use js_sys::{Array, Object, Reflect};
 use wasm_bindgen::prelude::*;
 
-use leptos::prelude::{GetUntracked, Signal};
 use leptos_leaflet::leaflet as L;
 
 #[wasm_bindgen]
@@ -102,91 +100,13 @@ impl HotlineOptions {
     ///
     #[must_use]
     #[inline]
-    pub fn new(
-        palette: &HotlinePalette,
-        outline_color: &Option<Signal<String>>,
-        max: &Option<Signal<f64>>,
-        min: &Option<Signal<f64>>,
-    ) -> Self {
-        let palette_len = palette.palette.len();
-
-        let js_palette = if palette_len > 0 {
-            Self::palette_to_js(palette)
-        } else {
-            Self::palette_to_js(&HotlinePalette::default())
-        };
-
-        let js_outline_color = Self::outline_color_to_js(outline_color);
-        let js_max = Self::max_to_js(max);
-        let js_min = Self::min_to_js(min);
-
+    pub fn new(palette: &JsValue, outline_color: &JsValue, max: &JsValue, min: &JsValue) -> Self {
         let opts: Self = JsCast::unchecked_into(Object::new());
-        opts.set_palette(&js_palette);
-        opts.set_outline_color(&js_outline_color);
-        opts.set_max(&js_max);
-        opts.set_min(&js_min);
+        opts.set_palette(&palette);
+        opts.set_outline_color(&outline_color);
+        opts.set_max(&max);
+        opts.set_min(&min);
         opts
-    }
-
-    ///
-    /// convert [`HotlinePalette`] to [`JsValue`] type
-    ///
-    /// # Returns
-    /// [`JsValue`] containing hotline palette information (maps breakpoint -> color for JS binding)
-    ///
-    #[must_use]
-    #[inline]
-    pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
-        let palette_opts = Object::new();
-
-        for (color, bkpt) in &palette.palette {
-            let res: Result<bool, JsValue> =
-                Reflect::set(&palette_opts, &JsValue::from_f64(*bkpt), &color.into());
-            drop(res);
-        }
-
-        JsCast::unchecked_into(palette_opts)
-    }
-
-    ///
-    /// Converts hotline outline color to [`JsValue`] type
-    ///
-    /// # Returns
-    /// [`JsValue`] containing hotline outline color information
-    ///
-    #[must_use]
-    #[inline]
-    pub fn outline_color_to_js(outline_color: &Option<Signal<String>>) -> JsValue {
-        let js_outline_color = outline_color
-            .as_ref()
-            .map_or_else(|| "black".to_owned(), GetUntracked::get_untracked);
-        JsCast::unchecked_into(JsString::from(js_outline_color))
-    }
-
-    ///
-    /// Converts hotline max breakpoint threshold to [`JsValue`] type
-    ///
-    /// # Returns
-    /// [`JsValue`] containing hotline max breakpoint threshold information
-    ///
-    #[must_use]
-    #[inline]
-    pub fn max_to_js(val: &Option<Signal<f64>>) -> JsValue {
-        let js_val = val.as_ref().map_or(1.0_f64, GetUntracked::get_untracked);
-        JsValue::from_f64(js_val)
-    }
-
-    ///
-    /// Converts hotline min breakpoint threshold to [`JsValue`] type
-    ///
-    /// # Returns
-    /// [`JsValue`] containing hotline min breakpoint threshold information
-    ///
-    #[must_use]
-    #[inline]
-    pub fn min_to_js(val: &Option<Signal<f64>>) -> JsValue {
-        let js_val = val.as_ref().map_or(0.0_f64, GetUntracked::get_untracked);
-        JsValue::from_f64(js_val)
     }
 }
 

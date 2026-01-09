@@ -4,8 +4,9 @@ pub mod hotline_palette;
 #[path = "./hotline_position.rs"]
 pub mod hotline_position;
 
-use js_sys::{Array, Object, Reflect};
+use js_sys::{Array, Function, Object, Reflect, Uint8ClampedArray};
 use wasm_bindgen::prelude::*;
+use web_sys::CanvasRenderingContext2d;
 
 use leptos_leaflet::leaflet as L;
 
@@ -143,6 +144,51 @@ impl Hotline {
         Reflect::set(&obj, &"min".into(), &JsValue::from_f64(min)).unwrap_or(true);
 
         self.set_style(&obj);
+    }
+
+    /// get the rendered hex color for a given lat/lng if it is on the hotline
+    #[must_use]
+    pub fn color_for_lat_lng(&self, lat: f64, lng: f64) -> Option<String> {
+        let map = Reflect::get(self, &JsValue::from_str("_map")).ok()?;
+        if map.is_null() || map.is_undefined() {
+            return None;
+        }
+
+        let lat_lng = Array::new();
+        lat_lng.push(&JsValue::from_f64(lat));
+        lat_lng.push(&JsValue::from_f64(lng));
+
+        let to_point_fn: Function =
+            Reflect::get(&map, &JsValue::from_str("latLngToContainerPoint"))
+                .ok()?
+                .dyn_into()
+                .ok()?;
+        let point = to_point_fn.call1(&map, &lat_lng).ok()?;
+        let x = Reflect::get(&point, &JsValue::from_str("x"))
+            .ok()?
+            .as_f64()?;
+        let y = Reflect::get(&point, &JsValue::from_str("y"))
+            .ok()?
+            .as_f64()?;
+
+        let renderer = Reflect::get(self, &JsValue::from_str("_renderer")).ok()?;
+        let ctx: CanvasRenderingContext2d = Reflect::get(&renderer, &JsValue::from_str("_ctx"))
+            .ok()?
+            .dyn_into()
+            .ok()?;
+        let image_data = ctx.get_image_data(x.round(), y.round(), 1.0, 1.0).ok()?;
+        let data: Uint8ClampedArray = image_data.data();
+
+        let alpha = data.get_index(3);
+        if alpha == 0 {
+            return None;
+        }
+
+        let red = data.get_index(0);
+        let green = data.get_index(1);
+        let blue = data.get_index(2);
+
+        Some(format!("#{:02X}{:02X}{:02X}", red, green, blue))
     }
 }
 

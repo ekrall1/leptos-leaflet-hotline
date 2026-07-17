@@ -1,5 +1,7 @@
 //! Module for hot polyline functional component
+mod color_lookup;
 pub mod hotline;
+pub use color_lookup::{ColorFormat, HotlineColorError, HotlineColorLookup};
 pub use hotline::{hotline_palette::*, hotline_position::*, Hotline, HotlineOptions};
 
 use leptos::logging::log;

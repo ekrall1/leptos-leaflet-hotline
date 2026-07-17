@@ -17,6 +17,22 @@ even when Cargo's home directory contains an older installed subcommand.
 Then open <http://127.0.0.1:3000>. The development server rebuilds and reloads
 the server-rendered app and its hydrated browser bundle as files change.
 
+Hover over the hotline to see a sticky tooltip with the cursor latitude,
+longitude, and the hexadecimal route color returned by the Rust lookup.
+
+After hydration, the example exposes its Rust color lookup in the browser
+console:
+
+```js
+hotlineColorAt(40.2928, -105.6185)        // hex by default
+hotlineColorAt(40.2928, -105.6185, "hex")
+hotlineColorAt(40.2928, -105.6185, "rgb")
+```
+
+Any finite latitude/longitude is accepted and projected onto the nearest
+segment in the example hotline. Invalid formats and coordinates throw a
+JavaScript error.
+
 The browser loads Leaflet, Leaflet.hotline, and OpenStreetMap tiles from their
 public CDNs, so displaying the map requires an internet connection. All Rust,
 WebAssembly, Sass, and cargo-leptos build tools come from the repository's Nix

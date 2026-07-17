@@ -1,49 +1,48 @@
 {
-  description = "A flake for development in the leptos leaflet hotline project";
+  description = "Leptos Leaflet Hotline";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { self, nixpkgs, rust-overlay, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+    { nixpkgs, rust-overlay, ... }:
     let
-      overlays = [ (import rust-overlay) ];
-      pkgs = import nixpkgs { inherit system overlays; };
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
     in
     {
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ rust-overlay.overlays.default ];
+          };
+          rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+        in
+        {
+          default = pkgs.mkShell {
+            packages = [
+              rustToolchain
+              pkgs.cargo-leptos
+              pkgs.dart-sass
+              pkgs.binaryen
+              pkgs.wasm-bindgen-cli_0_2_126
+            ];
 
-      # packages that can be run for development:
-      #
-      #   $ nix develop
-      #
-      devShells.default = pkgs.mkShell {
-        buildInputs =
-          with pkgs;
-          [
-            clang
-            llvmPackages.bintools
-            rustup
-            wasm-pack
-            openssl
-            pkg-config
-            cacert
-            cargo-make
-            trunk
-            (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
-              extensions = [ "rust-src" "rust-analyzer" ];
-              targets = [ "wasm32-unknown-unknown" ];
-            }))
-          ];
-
-        shellHook = ''
-          echo "Entering development shell"
-        '';
-      };
-
-    }
-    );
+            RUST_BACKTRACE = "1";
+          };
+        }
+      );
+    };
 }

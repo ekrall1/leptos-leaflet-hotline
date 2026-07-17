@@ -1,16 +1,29 @@
 # SSR example
-This is an example of the leptos-leaflet-hotline project using leptos and axum.  The example uses server-side rendering.
 
-## Running with NixOS
+This is the runnable Leptos/Axum example restored from the repository's `main`
+branch and updated for Leptos 0.8 and leptos-leaflet 0.10.
 
-```bash
+From the repository root:
+
+```sh
 nix develop
+cd examples/ssr-example
+cargo-leptos watch
 ```
 
-## Without NixOS
-This is based on the Leptos Axum Stater Template, which utilizes cargo-leptos.  It requires Rust nightly, and the ability to compile Rust to WASM.  For additional information, see:
-[Leptos](https://github.com/leptos-rs/leptos)
-[cargo-leptos](https://github.com/akesson/cargo-leptos)
-[Axum](https://github.com/tokio-rs/axum)
+Invoking `cargo-leptos` directly ensures the executable from the Nix shell wins
+even when Cargo's home directory contains an older installed subcommand.
 
-The example also uses sass.
+Then open <http://127.0.0.1:3000>. The development server rebuilds and reloads
+the server-rendered app and its hydrated browser bundle as files change.
+
+The browser loads Leaflet, Leaflet.hotline, and OpenStreetMap tiles from their
+public CDNs, so displaying the map requires an internet connection. All Rust,
+WebAssembly, Sass, and cargo-leptos build tools come from the repository's Nix
+flake; Docker is not used.
+
+For an optimized build, run:
+
+```sh
+cargo-leptos build --release
+```

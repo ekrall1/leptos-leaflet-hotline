@@ -1,15 +1,24 @@
-[workspace]
-resolver = "2"
-members = [
-    "leptos-leaflet-hotline",
-]
-exclude = ["examples"]
-
-[workspace.package]
+[package]
+name = "leptos-leaflet-hotline"
+description = "leptos leaflet polyline components with color gradients"
 version = "0.1.0"
+authors = ["Eric Krall"]
 edition = "2021"
-rust-version = "1.86"
+rust-version = "1.88"
+repository = "https://github.com/ekrall1/leptos-leaflet-hotline"
+readme = "README.md"
+license = "MIT"
 keywords = ["leptos", "leaflet", "leptos-leaflet", "hotline", "interactive-maps"]
 categories = ["development", "development::plugins", "interactive-maps::plugins"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = []
+csr = ["leptos/csr", "leptos-leaflet/csr"]
+hydrate = ["leptos/hydrate", "leptos-leaflet/hydrate"]
+ssr = ["leptos/ssr", "leptos-leaflet/ssr"]
+
+[dependencies]
+leptos = { version = "0.8.20", default-features = false }
+leptos-leaflet = { version = "0.10.2", default-features = false }
+js-sys = "0.3"
+wasm-bindgen = "0.2"

@@ -1,38 +1,47 @@
+$panel-background: rgb(255 255 255 / 92%);
+$panel-shadow: 0 0.75rem 2rem rgb(15 23 42 / 18%);
+
+html,
 body {
-	font-family: sans-serif;
-	text-align: center;
+  height: 100%;
+  margin: 0;
 }
 
-.map-parent {
+body {
+  color: #172033;
+  font-family: system-ui, sans-serif;
+}
+
+.example-shell {
+  min-height: 100%;
   position: relative;
 }
 
-.map-container {
+.example-map {
+  height: 100vh;
+  width: 100%;
+}
+
+.example-card {
+  backdrop-filter: blur(0.4rem);
+  background: $panel-background;
+  border-radius: 0.75rem;
+  box-shadow: $panel-shadow;
+  left: 1rem;
+  max-width: min(24rem, calc(100vw - 4rem));
+  padding: 1rem 1.25rem;
   position: absolute;
-  height: 99vh;
-  width: 99vw;
-}
+  top: 1rem;
+  z-index: 1000;
 
-// Define variables for stroke properties
-$base-stroke-color: #0000CC;
-$base-stroke-width: 5px;
-$max-stroke-width: 100px;
-$animation-duration: 2s;
-
-// Define animation keyframes
-@keyframes pulsate {
-  0%, 100% {
-    stroke-width: $base-stroke-width;
-    stroke: $base-stroke-color;
+  h1 {
+    font-size: 1.15rem;
+    margin: 0;
   }
-  50% {
-    stroke-width: $max-stroke-width;
-    stroke: darken($base-stroke-color, 10%);
-  }
-}
 
-.mycircle {
-	stroke: $base-stroke-color;
-	stroke-width: $base-stroke-width;
-	animation: pulsate $animation-duration infinite;
+  p {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin: 0.4rem 0 0;
+  }
 }

@@ -1,38 +1,32 @@
+html,
 body {
-	font-family: sans-serif;
-	text-align: center;
+  height: 100%;
+  margin: 0;
 }
 
-.map-parent {
+body {
+  font-family: system-ui, sans-serif;
+}
+
+.example-shell {
+  min-height: 100%;
   position: relative;
 }
 
-.map-container {
-  position: absolute;
-  height: 99vh;
-  width: 99vw;
+.example-map {
+  height: 100vh;
+  width: 100%;
 }
 
-// Define variables for stroke properties
-$base-stroke-color: #0000CC;
-$base-stroke-width: 5px;
-$max-stroke-width: 100px;
-$animation-duration: 2s;
+.hotline-hover-tooltip {
+  display: grid;
+  font-size: 0.8rem;
+  gap: 0.15rem 0.55rem;
+  grid-template-columns: auto auto;
 
-// Define animation keyframes
-@keyframes pulsate {
-  0%, 100% {
-    stroke-width: $base-stroke-width;
-    stroke: $base-stroke-color;
+  code {
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    text-align: right;
   }
-  50% {
-    stroke-width: $max-stroke-width;
-    stroke: darken($base-stroke-color, 10%);
-  }
-}
-
-.mycircle {
-	stroke: $base-stroke-color;
-	stroke-width: $base-stroke-width;
-	animation: pulsate $animation-duration infinite;
 }

@@ -1,54 +1,203 @@
 # leptos-leaflet-hotline
-This is a personal project for creating polylines with color gradients using Rust, Leptos and Leaflet.
 
-# Notes
-This project is primarily based the following other projects. 
-- The existing hotline extension for leaflet-js: [iosphere/Leaflet.hotline](https://github.com/iosphere/Leaflet.hotline/blob/master/LICENSE), Bindings are created using `wasm-bindgen`.
+`leptos-leaflet-hotline` provides a Leptos component for drawing Leaflet polylines whose color changes along the path. It targets Leptos 0.8 and leptos-leaflet 0.10.
 
-- The leptos-leaflet repository: [leptos-leaflet](https://github.com/headless-studio/leptos-leaflet/blob/main/LICENSE).  This project adapts the structure from that project to create hotline components in leptos-leaflet.  
+The third value in every position is the value visualized by the gradient:
 
-- like the above projects, this is also based on leaflet: [leaflet](https://github.com/Leaflet/Leaflet/tree/6ee30226c8270d8bdaec0a14c4018f244c7f5e59)
+```text
+(latitude, longitude, value)
+```
 
+## Browser prerequisites
+
+Load these browser assets before the application's WebAssembly starts:
+
+1. Leaflet CSS
+2. Leaflet JavaScript
+3. Leaflet.hotline JavaScript
+
+For example, when the assets are served locally:
+
+```html
+<link rel="stylesheet" href="/leaflet/leaflet.css">
+<script src="/leaflet/leaflet.js"></script>
+<script src="/leaflet-hotline/leaflet.hotline.js"></script>
+```
+
+Leaflet.hotline does not require a separate stylesheet, but the map container must have an explicit height. The plugin uses a canvas renderer and expects Leaflet's global `L` object to be available. It can also be installed with `npm install leaflet leaflet-hotline` and initialized through a JavaScript bundler.
+
+## Cargo setup
+
+Use Leptos 0.8 and leptos-leaflet 0.10, disable their default features, and select one rendering mode through this crate:
+
+```toml
+[dependencies]
+leptos = { version = "0.8.20", default-features = false }
+leptos-leaflet = { version = "0.10.2", default-features = false }
+leptos-leaflet-hotline = { git = "https://github.com/ekrall1/leptos-leaflet-hotline", default-features = false, features = ["csr"] }
+```
+
+Choose exactly one mode for each build target:
+
+- `csr` for a client-rendered browser application
+- `hydrate` for the browser half of a server-rendered application
+- `ssr` for the server half
+
+These features are forwarded to both Leptos and leptos-leaflet. Browser builds also require the `wasm32-unknown-unknown` Rust target.
+
+## Runnable SSR example
+
+The restored [Axum example](examples/ssr-example) uses the same three-crate
+`app`/`frontend`/`server` layout that was previously on `main`, updated for
+Leptos 0.8 hydration and leptos-leaflet 0.10.
+
+The repository flake supplies Rust, the WebAssembly target, cargo-leptos, Sass,
+wasm-bindgen, and wasm-opt. Docker is not required:
+
+```sh
+nix develop
+cd examples/ssr-example
+cargo-leptos watch
+```
+
+Open <http://127.0.0.1:3000>. See the [example README](examples/ssr-example/README.md)
+for release-build and runtime details.
+
+![Hotline example with a live color tooltip](./examples/screenshots/example1.PNG)
 
 ## Usage
 
-Ensure leaflet and leaflet-hotline are in your project.  For example, see `./examples/ssr-example/app/src/lib.rs`.
+```rust
+use leptos::prelude::*;
+use leptos_leaflet::prelude::*;
+use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};
 
-To add a hotline to a map, use the `HotPolyline` component.  The `positions` and `palette` props define the path and palette for the color gradient, respectively. As in `leaflet-hotline`, the values being visualized along the path are specified in the third element of each position (i.e., `positions` is an array of `(lat, lng, value)` tuples).  At some point I want to change this so the values do not have to be part of the latlng data type, but that would require a fair amount of decoupling from the existing JS bindings and will take some time.
+#[component]
+pub fn HotlineMap() -> impl IntoView {
+    let positions = HotlinePositionVec::new(&[
+        (40.2928, -105.6180, 1.00),
+        (40.2928, -105.6190, 0.67),
+        (40.2928, -105.6200, 0.33),
+        (40.2918, -105.6210, 0.01),
+    ]);
 
-e.g., 
+    let palette = HotlinePalette::new(&[
+        ("blue", 0.00),
+        ("yellow", 0.33),
+        ("red", 1.00),
+    ]);
+
+    view! {
+        <MapContainer
+            style="height: 400px"
+            center=Position::new(40.2928, -105.6170)
+            zoom=17.0
+        >
+            <TileLayer
+                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+            />
+            <HotPolyline
+                positions=positions
+                palette=palette
+                outline_color="#5a5a5a"
+                min=0.0
+                max=1.0
+            />
+        </MapContainer>
+    }
+}
 ```
-<HotPolyline
-    positions=HotlinePositionVec::new(&[(40.2928, -105.6180, 56.54), (40.2928, -105.6190, 6.80), (40.2928, -105.6200, 96.52), (40.2918, -105.6210, 24.91)])
-    palette=HotlinePalette::new(&[("green", 0.0), ("blue", 0.33), ("#ffff00", 0.67), ("red", 1.0)])
-/>
+
+`HotlinePalette` maps colors to normalized stops between `0.0` and `1.0`.
+`outline_color`, `min`, `max`, and `smooth_factor` are optional.
+
+## Querying the color along a path
+
+`HotlinePositionVec::color_at` returns the logical gradient color at any
+latitude/longitude along the path, including coordinates that were not input
+vertices:
+
+```rust
+use leptos_leaflet_hotline::{ColorFormat, HotlinePalette, HotlinePositionVec};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let positions = HotlinePositionVec::new(&[
+        (0.0, -1.0, 0.0),
+        (0.0,  1.0, 1.0),
+    ]);
+    let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
+
+    let hex = positions.color_at(0.0, 0.0, &palette, ColorFormat::Hex)?;
+    let rgb = positions.color_at(0.0, 0.0, &palette, ColorFormat::Rgb)?;
+
+    assert_eq!(hex, "#800080");
+    assert_eq!(rgb, "rgb(128, 0, 128)");
+    Ok(())
+}
 ```
 
-## Development
+The one-off methods cache the compiled 256-entry color table inside
+`HotlinePalette`, so calls using unchanged palette contents do not rebuild the
+Canvas palette. They still reproject the path segments for each call.
 
-Start a development shell (NixOS)
+For repeated or high-frequency queries, prepare both the palette and projected
+segments once. Pass the same `min` and `max` used by `HotPolyline`:
+
+```rust
+use leptos_leaflet_hotline::{
+    ColorFormat, HotlineColorLookup, HotlinePalette, HotlinePositionVec,
+};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let positions = HotlinePositionVec::new(&[(0.0, -1.0, 0.0), (0.0, 1.0, 1.0)]);
+    let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
+    let lookup = HotlineColorLookup::new(&positions, &palette, 0.0, 1.0)?;
+    let color = lookup.color_at(0.0, 0.5, ColorFormat::Hex)?;
+    let channels = lookup.rgb_at(0.0, 0.5)?;
+
+    assert_eq!(color, "#4000bf");
+    assert_eq!(channels, [64, 0, 191]);
+    Ok(())
+}
 ```
-nix develop
-```
 
-Run tests (from the repository's root directory)
-```
-wasm-pack test --headless --firefox ./leptos-leaflet-hotline
-```
+The lookup follows Leaflet.hotline's JavaScript algorithm: it builds the same
+256-entry palette, looks up each segment endpoint's RGB color, and then blends
+those two RGB colors along the segment. This is intentionally different from
+interpolating the numeric value first and looking that result up in the whole
+palette. On WebAssembly the palette is built with the browser's Canvas API,
+just as Leaflet.hotline builds it; native/SSR builds use a Rust CSS color
+parser and the same 256-bin algorithm. Native palette bytes and accepted CSS
+syntax can differ slightly from a particular browser's Canvas implementation.
 
-Build the project
-```
-cargo build
-```
+Coordinates are projected with continuous Web Mercator and snapped to the
+nearest supplied segment. At an exact self-intersection, the later segment is
+used because it is painted last by Canvas. The result is the logical route
+color before screen rasterization; anti-aliasing, Leaflet's integer-pixel
+rounding, and clipping can affect an individual displayed pixel.
 
-## Examples
+`HotPolyline` defaults Leaflet's `smoothFactor` to zero because a geometrically
+redundant vertex can still carry an essential hotline value. Setting the
+`smooth_factor` prop to a nonzero value opts back into simplification, which
+can remove collinear value-bearing vertices before Leaflet.hotline draws them
+and make the visible gradient disagree with a lookup over the input segments.
 
-The project includes an example that uses Axum and server-side rendering, *see* `./examples/ssr-example`
+`HotlineColorLookup` is a snapshot. Rebuild it when reactive positions,
+palette, `min`, or `max` change. An off-path query also snaps to the nearest
+segment; the caller should enforce a distance threshold first if that is not
+the desired behavior.
 
-## Screenshots
+`HotlinePositionVec::new` retains the crate's existing behavior of dividing
+input values by their maximum before storing them. The lookup reads those
+stored values without normalizing them again.
 
-A hotline with randomly generated values along the path.
+## Attribution
 
-![example 1](./examples/screenshots/example1.PNG)
+This project builds on:
 
+- [iosphere/Leaflet.hotline](https://github.com/iosphere/Leaflet.hotline), whose JavaScript API is exposed through `wasm-bindgen`
+- [headless-studio/leptos-leaflet](https://github.com/headless-studio/leptos-leaflet), whose component and context structure this crate follows
+- [Leaflet](https://github.com/Leaflet/Leaflet), the underlying interactive mapping library
 
+See the linked projects for their respective licenses. This crate is licensed under the [MIT License](LICENSE).

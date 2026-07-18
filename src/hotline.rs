@@ -1,12 +1,14 @@
 //! module for hotline wasm JS bindings, structs and functions
 #[path = "./hotline_palette.rs"]
 pub mod hotline_palette;
+use hotline_palette::HotlinePalette;
 #[path = "./hotline_position.rs"]
 pub mod hotline_position;
 
-use js_sys::{Array, Object, Reflect};
+use js_sys::{Array, JsString, Object, Reflect};
 use wasm_bindgen::prelude::*;
 
+use leptos::prelude::{GetUntracked, Signal};
 use leptos_leaflet::leaflet as L;
 
 #[wasm_bindgen]
@@ -48,6 +50,11 @@ extern "C" {
     ///
     #[wasm_bindgen(method, setter)]
     pub fn set_min(this: &HotlineOptions, min: &JsValue) -> HotlineOptions;
+
+    /// Disable Leaflet's geometric simplification so vertices carrying
+    /// distinct hotline values are not discarded.
+    #[wasm_bindgen(method, setter, js_name = "smoothFactor")]
+    pub fn set_smooth_factor(this: &HotlineOptions, smooth_factor: f64);
 
     /// struct for binding to leaflet-hotline JS L::Hotline class
     ///
@@ -100,13 +107,111 @@ impl HotlineOptions {
     ///
     #[must_use]
     #[inline]
-    pub fn new(palette: &JsValue, outline_color: &JsValue, max: &JsValue, min: &JsValue) -> Self {
+    pub fn new(
+        palette: &HotlinePalette,
+        outline_color: &Option<Signal<String>>,
+        max: &Option<Signal<f64>>,
+        min: &Option<Signal<f64>>,
+    ) -> Self {
+        let palette_len = palette.palette.len();
+
+        let js_palette = if palette_len > 0 {
+            Self::palette_to_js(palette)
+        } else {
+            Self::palette_to_js(&HotlinePalette::default())
+        };
+
+        let js_outline_color = Self::outline_color_to_js(outline_color);
+        let js_max = Self::max_to_js(max);
+        let js_min = Self::min_to_js(min);
+
         let opts: Self = JsCast::unchecked_into(Object::new());
-        opts.set_palette(&palette);
-        opts.set_outline_color(&outline_color);
-        opts.set_max(&max);
-        opts.set_min(&min);
+        opts.set_palette(&js_palette);
+        opts.set_outline_color(&js_outline_color);
+        opts.set_max(&js_max);
+        opts.set_min(&js_min);
+        // A geometrically redundant vertex can still carry an essential
+        // color value. Leaflet's default smoothFactor of 1 would discard it
+        // before Leaflet.hotline draws the gradient.
+        opts.set_smooth_factor(0.0);
         opts
+    }
+
+    ///
+    /// convert [`HotlinePalette`] to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline palette information (maps breakpoint -> color for JS binding)
+    ///
+    #[must_use]
+    #[inline]
+    pub fn palette_to_js(palette: &HotlinePalette) -> JsValue {
+        let palette_opts = Object::new();
+
+        for (color, bkpt) in &palette.palette {
+            let res: Result<bool, JsValue> =
+                Reflect::set(&palette_opts, &JsValue::from_f64(*bkpt), &color.into());
+            drop(res);
+        }
+
+        JsCast::unchecked_into(palette_opts)
+    }
+
+    ///
+    /// Converts hotline outline color to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline outline color information
+    ///
+    #[must_use]
+    #[inline]
+    pub fn outline_color_to_js(outline_color: &Option<Signal<String>>) -> JsValue {
+        let js_outline_color = outline_color
+            .as_ref()
+            .map_or_else(|| "black".to_owned(), GetUntracked::get_untracked);
+        JsCast::unchecked_into(JsString::from(js_outline_color))
+    }
+
+    ///
+    /// Converts hotline max breakpoint threshold to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline max breakpoint threshold information
+    ///
+    #[must_use]
+    #[inline]
+    pub fn max_to_js(val: &Option<Signal<f64>>) -> JsValue {
+        let js_val = val.as_ref().map_or(1.0_f64, GetUntracked::get_untracked);
+        JsValue::from_f64(js_val)
+    }
+
+    ///
+    /// Converts hotline min breakpoint threshold to [`JsValue`] type
+    ///
+    /// # Returns
+    /// [`JsValue`] containing hotline min breakpoint threshold information
+    ///
+    #[must_use]
+    #[inline]
+    pub fn min_to_js(val: &Option<Signal<f64>>) -> JsValue {
+        let js_val = val.as_ref().map_or(0.0_f64, GetUntracked::get_untracked);
+        JsValue::from_f64(js_val)
+    }
+}
+
+impl Hotline {
+    /// Set a new color palette after the hotline has been created.
+    #[inline]
+    pub fn set_palette_val(&self, palette: &HotlinePalette) {
+        let obj = Object::new();
+        let palette = if palette.palette.is_empty() {
+            HotlineOptions::palette_to_js(&HotlinePalette::default())
+        } else {
+            HotlineOptions::palette_to_js(palette)
+        };
+        let _ = Reflect::set(&obj, &"palette".into(), &palette);
+
+        self.set_style(&obj);
     }
 }
 
@@ -114,11 +219,9 @@ impl HotlineOptions {
 /// implement functions to set outline color, set max breakpoint threshold,
 /// and set min breakpoint threshold for [`Hotline`]
 ///
-#[wasm_bindgen]
 impl Hotline {
     /// set a new outline color for the hotline after it has already been created; \
     /// creates JS object with outlineColor k,v pair and calls set_style on self
-    #[inline]
     pub fn set_outline_color_val(&self, color: &str) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"outlineColor".into(), &JsValue::from(color)).unwrap_or(true);
@@ -128,7 +231,6 @@ impl Hotline {
     }
 
     /// set the max breakpoint threshold for [`Hotline`]
-    #[inline]
     pub fn set_max_val(&self, max: f64) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"max".into(), &JsValue::from_f64(max)).unwrap_or(true);
@@ -137,7 +239,6 @@ impl Hotline {
     }
 
     /// set the min breakpoint threshold for [`Hotline`]
-    #[inline]
     pub fn set_min_val(&self, min: f64) {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &"min".into(), &JsValue::from_f64(min)).unwrap_or(true);

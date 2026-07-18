@@ -1,4 +1,5 @@
-//! Module for hot polyline functional component
+#![doc = include_str!("../README.md")]
+
 mod color_lookup;
 pub mod hotline;
 pub use color_lookup::{ColorFormat, HotlineColorError, HotlineColorLookup};
@@ -20,6 +21,8 @@ use leptos_leaflet::prelude::{
 /// * `outline_color` - string representing the polyline outline color
 /// * `max` - float representing max breakpoint to use for palette
 /// * `min` - float representing min breakpoint to use for palette
+/// * `smooth_factor` - Leaflet simplification tolerance; defaults to `0.0` so
+///   value-bearing vertices are preserved
 /// * `children` - child elements
 ///
 /// # Returns
@@ -35,22 +38,36 @@ use leptos_leaflet::prelude::{
 /// use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};
 ///
 /// #[component]
-/// fn my_map() -> impl IntoView {
+/// pub fn HotlineMap() -> impl IntoView {
+///     let positions = HotlinePositionVec::new(&[
+///         (40.2928, -105.6180, 1.00),
+///         (40.2928, -105.6190, 0.67),
+///         (40.2928, -105.6200, 0.33),
+///         (40.2918, -105.6210, 0.01),
+///     ]);
+///
+///     let palette = HotlinePalette::new(&[
+///         ("blue", 0.00),
+///         ("yellow", 0.33),
+///         ("red", 1.00),
+///     ]);
+///
 ///     view! {
 ///         <MapContainer
-///             style="height: 100vh"
-///             center=Position::new(40.293, -105.618)
+///             style="height: 400px"
+///             center=Position::new(40.2928, -105.6170)
 ///             zoom=17.0
 ///         >
+///             <TileLayer
+///                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+///                 attribution="&copy; OpenStreetMap contributors"
+///             />
 ///             <HotPolyline
-///                 positions=HotlinePositionVec::new(&[
-///                     (40.293, -105.618, 0.0),
-///                     (40.294, -105.619, 100.0),
-///                 ])
-///                 palette=HotlinePalette::new(&[("green", 0.0), ("red", 1.0)])
-///                 outline_color="white"
-///                 max=1.0
+///                 positions=positions
+///                 palette=palette
+///                 outline_color="#5a5a5a"
 ///                 min=0.0
+///                 max=1.0
 ///             />
 ///         </MapContainer>
 ///     }
@@ -64,6 +81,11 @@ pub fn HotPolyline(
     #[prop(optional, into)] outline_color: Option<Signal<String>>,
     #[prop(optional, into)] max: Option<Signal<f64>>,
     #[prop(optional, into)] min: Option<Signal<f64>>,
+    /// Defaults to zero for color fidelity. A nonzero value opts back into
+    /// Leaflet's geometric simplification and can make rendered colors differ
+    /// from lookups over the original input segments.
+    #[prop(optional)]
+    smooth_factor: f64,
     #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     extend_context_with_overlay();
@@ -93,6 +115,7 @@ pub fn HotPolyline(
                 &max_for_setup,
                 &min_for_setup,
             );
+            opts.set_smooth_factor(smooth_factor);
             let hotline = Hotline::new(&lat_lngs, &opts);
             hotline.add_to(&map);
             update_overlay_context(&hotline);

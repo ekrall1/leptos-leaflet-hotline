@@ -63,6 +63,8 @@ cargo-leptos watch
 Open <http://127.0.0.1:3000>. See the [example README](examples/ssr-example/README.md)
 for release-build and runtime details.
 
+![Hotline example with a live color tooltip](./examples/screenshots/example1.PNG)
+
 ## Usage
 
 ```rust
@@ -73,25 +75,23 @@ use leptos_leaflet_hotline::{HotPolyline, HotlinePalette, HotlinePositionVec};
 #[component]
 pub fn HotlineMap() -> impl IntoView {
     let positions = HotlinePositionVec::new(&[
-        (40.2928, -105.6180, 0.00),
-        (40.2928, -105.6190, 0.35),
-        (40.2928, -105.6200, 0.70),
-        (40.2918, -105.6210, 1.00),
+        (40.2928, -105.6180, 1.00),
+        (40.2928, -105.6190, 0.67),
+        (40.2928, -105.6200, 0.33),
+        (40.2918, -105.6210, 0.01),
     ]);
 
     let palette = HotlinePalette::new(&[
-        ("green", 0.00),
-        ("blue", 0.33),
-        ("#ffff00", 0.67),
+        ("blue", 0.00),
+        ("yellow", 0.33),
         ("red", 1.00),
     ]);
 
     view! {
         <MapContainer
             style="height: 400px"
-            center=Position::new(40.2928, -105.6195)
-            zoom=15.0
-            set_view=true
+            center=Position::new(40.2928, -105.6170)
+            zoom=17.0
         >
             <TileLayer
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -100,7 +100,7 @@ pub fn HotlineMap() -> impl IntoView {
             <HotPolyline
                 positions=positions
                 palette=palette
-                outline_color="white"
+                outline_color="#5a5a5a"
                 min=0.0
                 max=1.0
             />
@@ -109,7 +109,8 @@ pub fn HotlineMap() -> impl IntoView {
 }
 ```
 
-`HotlinePalette` maps colors to normalized stops between `0.0` and `1.0`. `outline_color`, `min`, and `max` are optional.
+`HotlinePalette` maps colors to normalized stops between `0.0` and `1.0`.
+`outline_color`, `min`, `max`, and `smooth_factor` are optional.
 
 ## Querying the color along a path
 
@@ -120,40 +121,45 @@ vertices:
 ```rust
 use leptos_leaflet_hotline::{ColorFormat, HotlinePalette, HotlinePositionVec};
 
-# fn main() -> Result<(), Box<dyn std::error::Error>> {
-let positions = HotlinePositionVec::new(&[
-    (0.0, -1.0, 0.0),
-    (0.0,  1.0, 1.0),
-]);
-let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let positions = HotlinePositionVec::new(&[
+        (0.0, -1.0, 0.0),
+        (0.0,  1.0, 1.0),
+    ]);
+    let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
 
-let hex = positions.color_at(0.0, 0.0, &palette, ColorFormat::Hex)?;
-let rgb = positions.color_at(0.0, 0.0, &palette, ColorFormat::Rgb)?;
+    let hex = positions.color_at(0.0, 0.0, &palette, ColorFormat::Hex)?;
+    let rgb = positions.color_at(0.0, 0.0, &palette, ColorFormat::Rgb)?;
 
-assert_eq!(hex, "#800080");
-assert_eq!(rgb, "rgb(128, 0, 128)");
-# Ok(())
-# }
+    assert_eq!(hex, "#800080");
+    assert_eq!(rgb, "rgb(128, 0, 128)");
+    Ok(())
+}
 ```
 
-For repeated queries, prepare the palette and projected segments once. Pass
-the same `min` and `max` used by `HotPolyline`:
+The one-off methods cache the compiled 256-entry color table inside
+`HotlinePalette`, so calls using unchanged palette contents do not rebuild the
+Canvas palette. They still reproject the path segments for each call.
+
+For repeated or high-frequency queries, prepare both the palette and projected
+segments once. Pass the same `min` and `max` used by `HotPolyline`:
 
 ```rust
 use leptos_leaflet_hotline::{
     ColorFormat, HotlineColorLookup, HotlinePalette, HotlinePositionVec,
 };
 
-# fn main() -> Result<(), Box<dyn std::error::Error>> {
-# let positions = HotlinePositionVec::new(&[(0.0, -1.0, 0.0), (0.0, 1.0, 1.0)]);
-# let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
-let lookup = HotlineColorLookup::new(&positions, &palette, 0.0, 1.0)?;
-let color = lookup.color_at(0.0, 0.5, ColorFormat::Hex)?;
-let channels = lookup.rgb_at(0.0, 0.5)?;
-# assert_eq!(color, "#4000bf");
-# assert_eq!(channels, [64, 0, 191]);
-# Ok(())
-# }
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let positions = HotlinePositionVec::new(&[(0.0, -1.0, 0.0), (0.0, 1.0, 1.0)]);
+    let palette = HotlinePalette::new(&[("red", 0.0), ("blue", 1.0)]);
+    let lookup = HotlineColorLookup::new(&positions, &palette, 0.0, 1.0)?;
+    let color = lookup.color_at(0.0, 0.5, ColorFormat::Hex)?;
+    let channels = lookup.rgb_at(0.0, 0.5)?;
+
+    assert_eq!(color, "#4000bf");
+    assert_eq!(channels, [64, 0, 191]);
+    Ok(())
+}
 ```
 
 The lookup follows Leaflet.hotline's JavaScript algorithm: it builds the same
@@ -169,8 +175,13 @@ Coordinates are projected with continuous Web Mercator and snapped to the
 nearest supplied segment. At an exact self-intersection, the later segment is
 used because it is painted last by Canvas. The result is the logical route
 color before screen rasterization; anti-aliasing, Leaflet's integer-pixel
-rounding, clipping, and path simplification can affect an individual displayed
-pixel.
+rounding, and clipping can affect an individual displayed pixel.
+
+`HotPolyline` defaults Leaflet's `smoothFactor` to zero because a geometrically
+redundant vertex can still carry an essential hotline value. Setting the
+`smooth_factor` prop to a nonzero value opts back into simplification, which
+can remove collinear value-bearing vertices before Leaflet.hotline draws them
+and make the visible gradient disagree with a lookup over the input segments.
 
 `HotlineColorLookup` is a snapshot. Rebuild it when reactive positions,
 palette, `min`, or `max` change. An off-path query also snaps to the nearest

@@ -51,6 +51,11 @@ extern "C" {
     #[wasm_bindgen(method, setter)]
     pub fn set_min(this: &HotlineOptions, min: &JsValue) -> HotlineOptions;
 
+    /// Disable Leaflet's geometric simplification so vertices carrying
+    /// distinct hotline values are not discarded.
+    #[wasm_bindgen(method, setter, js_name = "smoothFactor")]
+    pub fn set_smooth_factor(this: &HotlineOptions, smooth_factor: f64);
+
     /// struct for binding to leaflet-hotline JS L::Hotline class
     ///
     #[wasm_bindgen(extends = L::Polyline)]
@@ -125,6 +130,10 @@ impl HotlineOptions {
         opts.set_outline_color(&js_outline_color);
         opts.set_max(&js_max);
         opts.set_min(&js_min);
+        // A geometrically redundant vertex can still carry an essential
+        // color value. Leaflet's default smoothFactor of 1 would discard it
+        // before Leaflet.hotline draws the gradient.
+        opts.set_smooth_factor(0.0);
         opts
     }
 

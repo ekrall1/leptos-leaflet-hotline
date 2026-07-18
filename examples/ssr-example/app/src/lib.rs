@@ -121,16 +121,15 @@ fn HomePage() -> impl IntoView {
     let (map, set_map) = create_map_signal();
     let hover_point = RwSignal::new(None::<HoverPoint>);
     let positions = HotlinePositionVec::new(&[
-        (40.2928, -105.6180, 0.59),
-        (40.2928, -105.6190, 0.07),
-        (40.2928, -105.6200, 1.00),
-        (40.2918, -105.6210, 0.26),
+        (40.2928, -105.6180, 1.00),
+        (40.2928, -105.6190, 0.67),
+        (40.2928, -105.6200, 0.33),
+        (40.2918, -105.6210, 0.01),
     ]);
     let palette = HotlinePalette::new(&[
-        ("green", 0.0),
-        ("blue", 0.33),
-        ("#ffff00", 0.67),
-        ("white", 1.0),
+        ("blue", 0.0),
+        ("yellow", 0.33),
+        ("red", 1.0),
     ]);
 
     #[cfg(target_arch = "wasm32")]

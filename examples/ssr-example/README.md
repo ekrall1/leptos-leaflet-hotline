@@ -29,9 +29,9 @@ hotlineColorAt(40.2928, -105.6185, "hex")
 hotlineColorAt(40.2928, -105.6185, "rgb")
 ```
 
-Any finite latitude/longitude is accepted and projected onto the nearest
-segment in the example hotline. Invalid formats and coordinates throw a
-JavaScript error.
+Finite geographic coordinates that can be projected are snapped to the
+nearest segment in the example hotline. Invalid formats and coordinates throw
+a JavaScript error.
 
 The browser loads Leaflet, Leaflet.hotline, and OpenStreetMap tiles from their
 public CDNs, so displaying the map requires an internet connection. All Rust,

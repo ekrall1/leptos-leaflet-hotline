@@ -5,13 +5,15 @@
 //! RGB gradient between those endpoint colors. The types in this module follow
 //! that same two-stage algorithm.
 
-use crate::{HotlinePalette, HotlinePositionVec};
-use std::{error::Error, fmt};
+use crate::{
+    hotline::hotline_palette::{CompiledPalette, PaletteCacheKey, PALETTE_SIZE},
+    HotlinePalette, HotlinePositionVec,
+};
+use std::{error::Error, fmt, sync::Arc};
 
 const DEFAULT_MIN: f64 = 0.0;
 const DEFAULT_MAX: f64 = 1.0;
 const MAX_MERCATOR_LATITUDE: f64 = 85.051_128_779_8;
-const PALETTE_SIZE: usize = 256;
 
 /// Output syntax used by [`HotlineColorLookup::color_at`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -150,7 +152,7 @@ struct PaletteEntry {
 #[derive(Debug, Clone, PartialEq)]
 pub struct HotlineColorLookup {
     segments: Vec<ProjectedSegment>,
-    palette: [[u8; 3]; PALETTE_SIZE],
+    palette: Arc<CompiledPalette>,
     min: f64,
     max: f64,
 }
@@ -225,7 +227,8 @@ impl HotlineColorLookup {
         }
 
         let entries = palette_entries(palette)?;
-        let palette = build_palette(&entries)?;
+        let key = palette_cache_key(&entries);
+        let palette = palette.compiled_palette(key, || build_palette(&entries))?;
 
         Ok(Self {
             segments,
@@ -302,8 +305,9 @@ impl HotlinePositionVec {
     /// Performs a one-off color query using Leaflet.hotline's default value
     /// range of `0.0..1.0`.
     ///
-    /// Use [`HotlineColorLookup`] directly for repeated queries or for a
-    /// custom `min`/`max` range.
+    /// The compiled color table is cached by `palette`, but this method still
+    /// rebuilds the projected path segments. Use [`HotlineColorLookup`]
+    /// directly for repeated queries or for a custom `min`/`max` range.
     pub fn color_at(
         &self,
         lat: f64,
@@ -315,6 +319,8 @@ impl HotlinePositionVec {
     }
 
     /// Performs a one-off color query using explicit `min` and `max` values.
+    /// The compiled color table is cached by `palette`, but the projected path
+    /// segments are rebuilt for every call.
     #[allow(clippy::too_many_arguments)]
     pub fn color_at_with_range(
         &self,
@@ -386,6 +392,16 @@ fn palette_entries(palette: &HotlinePalette) -> Result<Vec<PaletteEntry>, Hotlin
     }
 
     Ok(entries)
+}
+
+fn palette_cache_key(entries: &[PaletteEntry]) -> PaletteCacheKey {
+    entries
+        .iter()
+        .map(|entry| {
+            let stop = if entry.stop == 0.0 { 0.0 } else { entry.stop };
+            (stop.to_bits(), entry.color.clone())
+        })
+        .collect()
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -669,6 +685,51 @@ mod tests {
             .expect("custom lookup");
 
         assert_ne!(default, custom);
+    }
+
+    #[test]
+    fn reuses_compiled_palette_for_unchanged_contents_and_clones() {
+        let positions = raw_positions(&[(0.0, 0.0, 0.0), (0.0, 1.0, 1.0)]);
+        let palette = red_blue_palette();
+        let cloned_palette = palette.clone();
+        assert_eq!(palette, cloned_palette);
+
+        let first = HotlineColorLookup::new(&positions, &palette, 0.0, 1.0).expect("first lookup");
+        let second =
+            HotlineColorLookup::new(&positions, &palette, 0.0, 1.0).expect("second lookup");
+
+        assert!(Arc::ptr_eq(&first.palette, &second.palette));
+
+        let from_clone = HotlineColorLookup::new(&positions, &cloned_palette, 0.0, 1.0)
+            .expect("lookup from cloned palette");
+
+        assert!(Arc::ptr_eq(&first.palette, &from_clone.palette));
+    }
+
+    #[test]
+    fn invalidates_compiled_palette_after_public_content_mutation() {
+        let positions = raw_positions(&[(0.0, 0.0, 0.0), (0.0, 1.0, 1.0)]);
+        let mut palette = red_blue_palette();
+        let original =
+            HotlineColorLookup::new(&positions, &palette, 0.0, 1.0).expect("original lookup");
+
+        palette.palette.insert("blue".to_owned(), 0.5);
+        let changed =
+            HotlineColorLookup::new(&positions, &palette, 0.0, 1.0).expect("changed lookup");
+
+        assert!(!Arc::ptr_eq(&original.palette, &changed.palette));
+        assert_ne!(original.rgb_for_value(0.25), changed.rgb_for_value(0.25));
+
+        palette.palette.insert("not a real color".to_owned(), 0.25);
+        assert!(matches!(
+            HotlineColorLookup::new(&positions, &palette, 0.0, 1.0),
+            Err(HotlineColorError::InvalidPaletteColor { .. })
+        ));
+
+        palette.palette.remove("not a real color");
+        let repaired =
+            HotlineColorLookup::new(&positions, &palette, 0.0, 1.0).expect("repaired lookup");
+        assert!(Arc::ptr_eq(&changed.palette, &repaired.palette));
     }
 
     #[test]
